@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2>{{ title }}</h2>
+
+            <div class="card mt-4">
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    {{ form.title.label(class="form-label") }}
+                                    {{ form.title(class="form-control", placeholder="Bijv. Ajakkes, Hamlet, Kerstdiner") }}
+                                    {% if form.title.errors %}
+                                        <div class="text-danger">{{ form.title.errors[0] }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    {{ form.year.label(class="form-label") }}
+                                    {{ form.year(class="form-control", placeholder="2024") }}
+                                    {% if form.year.errors %}
+                                        <div class="text-danger">{{ form.year.errors[0] }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.type.label(class="form-label") }}
+                            {{ form.type(class="form-select") }}
+                            {% if form.type.errors %}
+                                <div class="text-danger">{{ form.type.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.start_date.label(class="form-label") }}
+                                    {{ form.start_date(class="form-control", type="date") }}
+                                    <div class="form-text">Eerste voorstelling of evenement datum</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.end_date.label(class="form-label") }}
+                                    {{ form.end_date(class="form-control", type="date") }}
+                                    <div class="form-text">Laatste voorstelling (optioneel)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.folder.label(class="form-label") }}
+                            {{ form.folder(class="form-control", placeholder="Laat leeg voor automatische naam") }}
+                            <div class="form-text">
+                                Mapnaam voor media opslag. Wordt automatisch aangemaakt als: jaar-titel
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control", rows=4, placeholder="Korte beschrijving of samenvatting...") }}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            {{ form.submit(class="btn btn-primary btn-lg") }}
+                            <a href="{{ url_for('activity_list') }}" class="btn btn-secondary">Annuleren</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-3 bg-light">
+                <div class="card-body">
+                    <h6>💡 Tips</h6>
+                    <ul class="mb-0">
+                        <li>De mapnaam wordt gebruikt voor het organiseren van media bestanden</li>
+                        <li>Als je geen mapnaam opgeeft, wordt automatisch "{jaar}-{titel}" gebruikt</li>
+                        <li>Je kunt later nog rollen en media toevoegen</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

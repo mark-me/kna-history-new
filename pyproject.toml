@@ -1,0 +1,41 @@
+[project]
+name = "kna-history"
+version = "0.1.0"
+description = "Archive for the KNA Theatre Group Hillegom The Netherlands"
+readme = "README.md"
+requires-python = ">=3.13.7"
+authors = [
+    {name = "Mark Zwart", email = "mark.zwart@pobox.com"}
+]
+dependencies = [
+    "dotenv>=0.9.9",
+    "flask>=3.1.2",
+    "flask-sqlalchemy>=3.1.1",
+    "flask-wtf>=1.2.2",
+    "pillow>=12.1.0",
+    "slugify>=0.0.1",
+]
+
+[tool.uv]
+package = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]  # Include alles in src/ (je app.py, routes/, etc.)
+sources = { "src" = "src" }  # Map src/ naar zichzelf in de wheel
+
+[dependency-groups]
+dev = [
+    # Documentation tooling
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.0",
+    "mkdocs-git-committers-plugin>=0.2.3",
+    "mkdocs-git-revision-date-localized-plugin>=1.5.0",
+    "mkdocs-panzoom-plugin>=0.4.2",
+    "mkdocstrings>=1.0.0",
+    "mkdocstrings-python>=2.0.1",
+    "mkdocs-glightbox>=0.5.2",
+    "mkdocs-mermaid2-plugin>=1.2.3",
+]
+
+[project.scripts]
+mixtape = "src.app:serve"

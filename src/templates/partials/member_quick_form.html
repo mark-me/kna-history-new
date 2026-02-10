@@ -1,0 +1,16 @@
+<form hx-post="{{ url_for('member_quick_create') }}" hx-target="#member-select" hx-swap="outerHTML" hx-indicator="#member-form-indicator">
+  <div class="mb-3">
+    <label class="form-label">Voornaam</label>
+    <input type="text" name="first_name" class="form-control" required />
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Achternaam</label>
+    <input type="text" name="last_name" class="form-control" required />
+  </div>
+  <div class="mb-3">
+    <label class="form-label">ID (optioneel)</label>
+    <input type="text" name="id_lid" class="form-control" placeholder="Auto gegenereerd" />
+  </div>
+  <button type="submit" class="btn btn-primary">Lid toevoegen</button>
+  <span id="member-form-indicator" class="htmx-indicator">Bezig met opslaan...</span>
+</form>

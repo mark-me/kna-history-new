@@ -1,0 +1,9 @@
+<select name="member_id" id="member-select" class="form-select">
+  <option value="">Kies lid...</option>
+  {% for m in members %}
+    <option value="{{ m.id_member }}" {% if selected == m.id_member %} selected {% endif %}>
+      {{ m.current_first_name }} {{ m.current_last_name }}
+    </option>
+  {% endfor %}
+  <option value="new">Nieuw lid toevoegen...</option>
+</select>

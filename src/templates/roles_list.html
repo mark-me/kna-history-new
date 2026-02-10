@@ -1,0 +1,48 @@
+<div id="roles-list">
+    {% if activity.roles %}
+    <div class="table-responsive">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Rol</th>
+                    <th>Personage</th>
+                    <th>Lid</th>
+                    <th>Type</th>
+                    <th>Acties</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for role in activity.roles %}
+                <tr>
+                    <td>{{ role.role_name or '-' }}</td>
+                    <td>{{ role.character_name or '-' }}</td>
+                    <td>
+                        {% if role.member %}
+                        {{ role.member.current_first_name }} {{ role.member.current_last_name }}
+                        {% else %}
+                        <em>Onbekend</em>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if role.role_type %}
+                        <span class="badge bg-secondary">{{ role.role_type }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" 
+                                onclick="deleteRole({{ role.id_role }})">
+                            Verwijder
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> Nog geen rollen toegevoegd. 
+        Gebruik het formulier hieronder om rollen toe te voegen.
+    </div>
+    {% endif %}
+</div>
