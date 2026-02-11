@@ -7,13 +7,12 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
-    create_engine,
 )
-from sqlalchemy.orm import DeclarativeBase, relationship
+from sqlalchemy.orm import relationship
+from .database import Base  # Import Base from database.py instead of defining it here
 
-
-class Base(DeclarativeBase):
-    pass
+# Remove the old Base class definition - it's now in database.py!
+# All model classes stay exactly the same, just use the imported Base
 
 
 class Member(Base):
@@ -55,7 +54,7 @@ class MemberNameHistory(Base):
     member = relationship("Member", back_populates="name_history")
 
     __table_args__ = (
-        Index("idx_name_history_member_time", "id_member", "valid_from", postgresql_ops={"valid_from": "DESC"}),
+        Index("idx_name_history_member_time", "id_member", "valid_from"),
     )
 
 
@@ -92,7 +91,7 @@ class Activity(Base):
     media_mentions = relationship("MentionActivity", back_populates="activity")
 
     __table_args__ = (
-        Index("idx_activity_year", "year", postgresql_ops={"year": "DESC"}),
+        Index("idx_activity_year", "year"),
         Index("idx_activity_type_date", "type", "start_date"),
     )
 
@@ -213,7 +212,7 @@ class MediaMention(Base):
     referenced_media_items = relationship("MentionMediaItem", back_populates="mention", cascade="all, delete-orphan")
 
     __table_args__ = (
-        Index("idx_mention_date", "mention_date", postgresql_ops={"mention_date": "DESC"}),
+        Index("idx_mention_date", "mention_date"),
         Index("idx_mention_source_type", "source", "media_type"),
     )
 
@@ -270,19 +269,3 @@ class MentionMediaItem(Base):
     __table_args__ = (
         Index("idx_mention_media_item", "media_item_id"),
     )
-
-
-# ──────────────────────────────────────────────────────────────
-# Create database function
-# ──────────────────────────────────────────────────────────────
-
-def create_database(db_path="data/kna_archive.db"):
-    engine = create_engine(f"sqlite:///{db_path}", echo=False)
-    Base.metadata.drop_all(engine)    # optional: clean start
-    Base.metadata.create_all(engine)
-    print(f"Database created at: {db_path}")
-    return engine
-
-
-if __name__ == "__main__":
-    create_database()

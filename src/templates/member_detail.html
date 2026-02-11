@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}{{ member.current_first_name }} {{ member.current_last_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('member_list') }}">Leden</a></li>
+            <li class="breadcrumb-item active">{{ member.current_first_name }} {{ member.current_last_name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>{{ member.current_first_name }} {{ member.current_last_name }}</h1>
+            <p class="text-muted">
+                ID: <code>{{ member.id_member }}</code>
+                {% if member.birth_date %}
+                | Geboren: {{ member.birth_date.strftime('%d-%m-%Y') }}
+                {% endif %}
+            </p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('member_edit', id_member=member.id_member) }}" 
+               class="btn btn-secondary">
+                Bewerken
+            </a>
+        </div>
+    </div>
+
+    {% if member.notes %}
+    <div class="alert alert-info">
+        <strong>Notities:</strong> {{ member.notes }}
+    </div>
+    {% endif %}
+
+    <!-- Roles -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">🎭 Rollen ({{ roles|length }})</h5>
+        </div>
+        <div class="card-body">
+            {% if roles %}
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Activiteit</th>
+                            <th>Jaar</th>
+                            <th>Rol</th>
+                            <th>Personage</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for role in roles %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('activity_detail', id_activity=role.activity.id_activity) }}">
+                                    {{ role.activity.title }}
+                                </a>
+                            </td>
+                            <td>{{ role.activity.year }}</td>
+                            <td>{{ role.role_name or '-' }}</td>
+                            <td>{{ role.character_name or '-' }}</td>
+                            <td>
+                                {% if role.role_type %}
+                                <span class="badge bg-secondary">{{ role.role_type }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">Nog geen rollen geregistreerd voor dit lid.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Media Appearances -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">📷 Media ({{ appearances|length }})</h5>
+        </div>
+        <div class="card-body">
+            {% if appearances %}
+            <div class="row g-3">
+                {% for appearance in appearances %}
+                <div class="col-md-3">
+                    <div class="card h-100">
+                        <div class="card-img-top bg-light" style="height: 150px;">
+                            {% if appearance.media_item.type_media in ['foto', 'poster'] %}
+                            <img src="{{ url_for('serve_thumbnail', rel_path=appearance.media_item.storage_path) }}" 
+                                 alt="{{ appearance.media_item.caption or appearance.media_item.filename }}"
+                                 class="w-100 h-100 object-fit-cover">
+                            {% else %}
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <i class="bi bi-file-earmark fs-1 text-muted"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title text-truncate">
+                                {{ appearance.media_item.caption or appearance.media_item.filename }}
+                            </h6>
+                            <p class="card-text small">
+                                <span class="badge bg-info">{{ appearance.media_item.type_media }}</span>
+                                {% if appearance.appearance_context %}
+                                <br><small class="text-muted">{{ appearance.appearance_context }}</small>
+                                {% endif %}
+                            </p>
+                            {% if appearance.activity %}
+                            <a href="{{ url_for('activity_detail', id_activity=appearance.activity.id_activity) }}" 
+                               class="btn btn-sm btn-outline-primary w-100">
+                                {{ appearance.activity.title }}
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted">Nog geen media voor dit lid.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Name History -->
+    {% if member.name_history %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">📝 Naam geschiedenis</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Naam</th>
+                            <th>Van</th>
+                            <th>Tot</th>
+                            <th>Reden</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for name in member.name_history %}
+                        <tr>
+                            <td>{{ name.first_name }} {{ name.last_name }}</td>
+                            <td>{{ name.valid_from.strftime('%d-%m-%Y') if name.valid_from else '-' }}</td>
+                            <td>{{ name.valid_to.strftime('%d-%m-%Y') if name.valid_to else 'heden' }}</td>
+                            <td>{{ name.change_reason or '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

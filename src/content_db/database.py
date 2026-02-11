@@ -1,13 +1,13 @@
 # content_db/database.py
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
 
-# Define Base class for models
-class Base(DeclarativeBase):
-    pass
+# Create Flask-SQLAlchemy instance
+# This automatically creates a Base class with .query support
+db = SQLAlchemy()
 
-# Create Flask-SQLAlchemy instance using our Base class
-db = SQLAlchemy(model_class=Base)
+# Export the Base class for models to use
+# This is the declarative base that has .query attribute
+Base = db.Model
 
 # For backwards compatibility
 def get_session():

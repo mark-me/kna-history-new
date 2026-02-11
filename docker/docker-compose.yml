@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  kna-archive:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      # Persist data outside container
+      - ./data:/data
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - DATABASE_DIR=/data/db
+      - RESOURCES_DIR=/data/resources
+      - UPLOADS_DIR=/data/uploads
+    restart: unless-stopped

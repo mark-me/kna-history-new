@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('member_list') }}">Leden</a></li>
+                    <li class="breadcrumb-item active">{{ title }}</li>
+                </ol>
+            </nav>
+
+            <h2>{{ title }}</h2>
+
+            <div class="card mt-4">
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            {{ form.first_name.label(class="form-label") }}
+                            {{ form.first_name(class="form-control", placeholder="Jan") }}
+                            {% if form.first_name.errors %}
+                                <div class="text-danger">{{ form.first_name.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.last_name.label(class="form-label") }}
+                            {{ form.last_name(class="form-control", placeholder="Jansen") }}
+                            {% if form.last_name.errors %}
+                                <div class="text-danger">{{ form.last_name.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.id_lid.label(class="form-label") }}
+                            {{ form.id_lid(class="form-control", placeholder="jan-jansen", 
+                                          readonly=member is defined) }}
+                            <div class="form-text">
+                                {% if member %}
+                                ID kan niet worden gewijzigd
+                                {% else %}
+                                Laat leeg voor automatische generatie (voornaam-achternaam)
+                                {% endif %}
+                            </div>
+                            {% if form.id_lid.errors %}
+                                <div class="text-danger">{{ form.id_lid.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            {{ form.submit(class="btn btn-primary btn-lg") }}
+                            <a href="{{ url_for('member_list') }}" class="btn btn-secondary">Annuleren</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if not member %}
+            <div class="card mt-3 bg-light">
+                <div class="card-body">
+                    <h6>💡 Tips</h6>
+                    <ul class="mb-0">
+                        <li>Het ID wordt automatisch aangemaakt als je het veld leeg laat</li>
+                        <li>Je kunt later meer gegevens toevoegen zoals geboortedatum en notities</li>
+                        <li>Naam wijzigingen worden automatisch bijgehouden in de naam geschiedenis</li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Leden{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Leden</h1>
+            <p class="text-muted">Overzicht van alle KNA leden</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('member_new') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Nieuw lid
+            </a>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <form method="GET" action="{{ url_for('member_list') }}" class="input-group">
+                <input type="text" name="q" class="form-control" 
+                       placeholder="Zoek op naam..." 
+                       value="{{ search or '' }}">
+                <button type="submit" class="btn btn-outline-secondary">Zoeken</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Members table -->
+    {% if members %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Naam</th>
+                            <th>Geboortedatum</th>
+                            <th>Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in members %}
+                        <tr>
+                            <td><code>{{ member.id_member }}</code></td>
+                            <td>
+                                <a href="{{ url_for('member_detail', id_member=member.id_member) }}">
+                                    {{ member.current_first_name }} {{ member.current_last_name }}
+                                </a>
+                            </td>
+                            <td>
+                                {% if member.birth_date %}
+                                {{ member.birth_date.strftime('%d-%m-%Y') }}
+                                {% else %}
+                                <span class="text-muted">Onbekend</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('member_detail', id_member=member.id_member) }}" 
+                                   class="btn btn-sm btn-outline-primary">Bekijk</a>
+                                <a href="{{ url_for('member_edit', id_member=member.id_member) }}" 
+                                   class="btn btn-sm btn-outline-secondary">Bewerk</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <p class="mt-3 text-muted">
+        {{ members|length }} lid{{ 'en' if members|length != 1 else '' }} gevonden
+    </p>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> 
+        {% if search %}
+        Geen leden gevonden voor "{{ search }}"
+        {% else %}
+        Nog geen leden in het archief. <a href="{{ url_for('member_new') }}">Voeg het eerste lid toe</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

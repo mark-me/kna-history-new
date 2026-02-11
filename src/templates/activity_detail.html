@@ -33,7 +33,7 @@
                     {% endif %}
                 </div>
                 <div>
-                    <a href="{{ url_for('upload') }}?activity={{ activity.id_activity }}" 
+                    <a href="{{ url_for('upload') }}?activity={{ activity.id_activity }}"
                        class="btn btn-primary">
                         <i class="bi bi-upload"></i> Upload media
                     </a>
@@ -64,7 +64,7 @@
     <div class="tab-content mt-4">
         <!-- MEDIA TAB -->
         <div class="tab-pane fade show active" id="media-tab">
-            {% include 'partials/media_gallery.html' %}
+            {% include 'media_gallery.html' %}
         </div>
 
         <!-- ROLES TAB -->
@@ -84,7 +84,7 @@
                             <form method="POST" action="{{ url_for('parse_roles', id_activity=activity.id_activity) }}">
                                 <div class="mb-3">
                                     <label class="form-label">Plak programma tekst</label>
-                                    <textarea name="program_text" class="form-control" rows="10" 
+                                    <textarea name="program_text" class="form-control" rows="10"
                                               placeholder="Hamlet – Jane Doe&#10;Ophelia – John Smith&#10;Regisseur – Alice Johnson"></textarea>
                                     <small class="form-text text-muted">
                                         Formaat: Rol – Naam<br>
@@ -117,7 +117,7 @@
             <div class="row">
                 <div class="col-md-8">
                     <h4>Archivering workflow</h4>
-                    
+
                     <div class="accordion" id="workflowAccordion">
                         <!-- Step 1 -->
                         <div class="accordion-item">
@@ -142,7 +142,7 @@
                         <div class="accordion-item">
                             <h2 class="accordion-header">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#step2">
-                                    {% if media|length > 0 %}✅{% else %}⏳{% endif %} 
+                                    {% if media|length > 0 %}✅{% else %}⏳{% endif %}
                                     Stap 2: Media uploaden ({{ media|length }} items)
                                 </button>
                             </h2>
@@ -153,7 +153,7 @@
                                     {% else %}
                                     <p class="text-muted">Nog geen media geüpload.</p>
                                     {% endif %}
-                                    <a href="{{ url_for('upload') }}?activity={{ activity.id_activity }}" 
+                                    <a href="{{ url_for('upload') }}?activity={{ activity.id_activity }}"
                                        class="btn btn-primary">Upload media</a>
                                 </div>
                             </div>
@@ -247,7 +247,7 @@
 
                             <h6>Snelle acties</h6>
                             <div class="d-grid gap-2">
-                                <a href="{{ url_for('upload') }}?activity={{ activity.id_activity }}" 
+                                <a href="{{ url_for('upload') }}?activity={{ activity.id_activity }}"
                                    class="btn btn-sm btn-primary">Upload meer media</a>
                                 <button class="btn btn-sm btn-secondary">Bewerk activiteit</button>
                                 <button class="btn btn-sm btn-outline-danger">Verwijder activiteit</button>
