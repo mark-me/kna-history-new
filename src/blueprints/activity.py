@@ -84,7 +84,7 @@ def bulk_assign(id_activity):
         db.session.commit()
 
     flash(f"{len(media_ids)} media bijgewerkt met {len(member_ids)} leden.", "success")
-    return redirect(url_for("activity_detail", id_activity=id_activity))
+    return redirect(url_for("activity.detail", id_activity=id_activity))
 
 
 @activity_bp.route("/<id_activity>/parse-roles", methods=["POST"])
@@ -102,7 +102,7 @@ def parse_roles(id_activity):
             flash(error, "warning")
 
     flash(f"{created} rollen toegevoegd.", "success")
-    return redirect(url_for("activity_detail", id_activity=id_activity))
+    return redirect(url_for("activity.detail", id_activity=id_activity))
 
 
 @activity_bp.route("/<id_activity>/finalize-media", methods=["POST"])
@@ -110,7 +110,7 @@ def finalize_media(id_activity):
     activity = ActivityService.get_activity(db.session, id_activity)
     if not activity:
         flash("Activiteit niet gevonden", "danger")
-        return redirect(url_for("activity_detail", id_activity=id_activity))
+        return redirect(url_for("activity.detail", id_activity=id_activity))
 
     media_items = MediaService.list_media_for_activity(db.session, id_activity)
     moved = 0
@@ -131,4 +131,4 @@ def finalize_media(id_activity):
         f"{moved} bestanden verplaatst, {failed} mislukt.",
         "warning" if failed else "success",
     )
-    return redirect(url_for("activity_detail", id_activity=id_activity))
+    return redirect(url_for("activity.detail", id_activity=id_activity))

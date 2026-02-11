@@ -1,73 +1,107 @@
 {% extends "base.html" %}
 
-{% block title %}{{ member.current_first_name }} {{ member.current_last_name }}{% endblock %}
+{% block title %}{{ member.current_first_name }} {{ member.current_last_name }} - KNA Archief{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-4 mb-5">
+    <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ url_for('member_list') }}">Leden</a></li>
-            <li class="breadcrumb-item active">{{ member.current_first_name }} {{ member.current_last_name }}</li>
+        <ol class="breadcrumb bg-transparent ps-0">
+            <li class="breadcrumb-item"><a href="{{ url_for('core.index') }}" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('member.list') }}" class="text-decoration-none">Leden</a></li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {{ member.current_first_name }} {{ member.current_last_name }}
+            </li>
         </ol>
     </nav>
 
-    <div class="row mb-4">
+    <!-- Header -->
+    <div class="row align-items-center mb-4 g-4">
         <div class="col-md-8">
-            <h1>{{ member.current_first_name }} {{ member.current_last_name }}</h1>
-            <p class="text-muted">
-                ID: <code>{{ member.id_member }}</code>
+            <h1 class="mb-1">{{ member.current_first_name }} {{ member.current_last_name }}</h1>
+            <div class="d-flex flex-wrap gap-3 text-muted">
+                <div>
+                    <small class="fw-semibold">ID:</small>
+                    <code class="fs-6 bg-light px-2 py-1 rounded">{{ member.id_member }}</code>
+                </div>
                 {% if member.birth_date %}
-                | Geboren: {{ member.birth_date.strftime('%d-%m-%Y') }}
+                <div>
+                    <small class="fw-semibold">Geboren:</small>
+                    <span>{{ member.birth_date | date }}</span>
+                </div>
                 {% endif %}
-            </p>
+                {% if member.name_history and member.name_history|length > 1 %}
+                <div>
+                    <small class="badge bg-info-subtle text-info border border-info-subtle">
+                        Naamgeschiedenis beschikbaar
+                    </small>
+                </div>
+                {% endif %}
+            </div>
         </div>
-        <div class="col-md-4 text-end">
-            <a href="{{ url_for('member_edit', id_member=member.id_member) }}" 
-               class="btn btn-secondary">
-                Bewerken
+        <div class="col-md-4 text-md-end">
+            <a href="{{ url_for('member.edit', id_member=member.id_member) }}"
+               class="btn btn-outline-secondary btn-lg shadow-sm">
+                <i class="bi bi-pencil-square me-2"></i>Bewerken
             </a>
         </div>
     </div>
 
+    <!-- Notes -->
     {% if member.notes %}
-    <div class="alert alert-info">
-        <strong>Notities:</strong> {{ member.notes }}
+    <div class="alert alert-info border-0 shadow-sm mb-4">
+        <div class="d-flex">
+            <i class="bi bi-journal-text fs-4 me-3 mt-1"></i>
+            <div>
+                <strong>Notities:</strong>
+                <p class="mb-0">{{ member.notes }}</p>
+            </div>
+        </div>
     </div>
     {% endif %}
 
     <!-- Roles -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="mb-0">🎭 Rollen ({{ roles|length }})</h5>
+    <div class="card shadow border-0 mb-4">
+        <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-masks me-2"></i>Rollen ({{ roles|length }})
+            </h5>
+            {% if roles %}
+            <small class="opacity-75">Laatste activiteit: {{ roles[0].activity.year if roles else '-' }}</small>
+            {% endif %}
         </div>
-        <div class="card-body">
+        <div class="card-body p-0">
             {% if roles %}
             <div class="table-responsive">
-                <table class="table table-sm">
-                    <thead>
+                <table class="table table-hover table-borderless mb-0">
+                    <thead class="table-light">
                         <tr>
-                            <th>Activiteit</th>
-                            <th>Jaar</th>
-                            <th>Rol</th>
-                            <th>Personage</th>
-                            <th>Type</th>
+                            <th scope="col">Activiteit</th>
+                            <th scope="col">Jaar</th>
+                            <th scope="col">Rol</th>
+                            <th scope="col">Personage</th>
+                            <th scope="col">Type</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for role in roles %}
                         <tr>
                             <td>
-                                <a href="{{ url_for('activity_detail', id_activity=role.activity.id_activity) }}">
+                                <a href="{{ url_for('activity.detail', id_activity=role.activity.id_activity) }}"
+                                   class="text-decoration-none fw-medium">
                                     {{ role.activity.title }}
                                 </a>
                             </td>
                             <td>{{ role.activity.year }}</td>
-                            <td>{{ role.role_name or '-' }}</td>
-                            <td>{{ role.character_name or '-' }}</td>
+                            <td>{{ role.role_name or '<span class="text-muted">—</span>' }}</td>
+                            <td>{{ role.character_name or '<span class="text-muted">—</span>' }}</td>
                             <td>
                                 {% if role.role_type %}
-                                <span class="badge bg-secondary">{{ role.role_type }}</span>
+                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">
+                                    {{ role.role_type }}
+                                </span>
+                                {% else %}
+                                <span class="text-muted">—</span>
                                 {% endif %}
                             </td>
                         </tr>
@@ -76,46 +110,52 @@
                 </table>
             </div>
             {% else %}
-            <p class="text-muted">Nog geen rollen geregistreerd voor dit lid.</p>
+            <div class="p-4 text-center text-muted">
+                <i class="bi bi-person-badge fs-1 d-block mb-3 opacity-50"></i>
+                <p class="mb-1">Nog geen rollen geregistreerd</p>
+                <small>Voeg rollen toe via een activiteit detailpagina</small>
+            </div>
             {% endif %}
         </div>
     </div>
 
     <!-- Media Appearances -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="mb-0">📷 Media ({{ appearances|length }})</h5>
+    <div class="card shadow border-0 mb-4">
+        <div class="card-header bg-gradient-success text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-images me-2"></i>Media verschijningen ({{ appearances|length }})
+            </h5>
         </div>
         <div class="card-body">
             {% if appearances %}
             <div class="row g-3">
                 {% for appearance in appearances %}
-                <div class="col-md-3">
-                    <div class="card h-100">
-                        <div class="card-img-top bg-light" style="height: 150px;">
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card h-100 shadow-sm border-0 hover-shadow transition">
+                        <div class="ratio ratio-1x1 bg-dark-subtle position-relative">
                             {% if appearance.media_item.type_media in ['foto', 'poster'] %}
-                            <img src="{{ url_for('serve_thumbnail', rel_path=appearance.media_item.storage_path) }}" 
-                                 alt="{{ appearance.media_item.caption or appearance.media_item.filename }}"
-                                 class="w-100 h-100 object-fit-cover">
+                            <img src="{{ url_for('media.serve_thumbnail', rel_path=appearance.media_item.storage_path) }}"
+                                 class="card-img-top object-fit-cover"
+                                 alt="{{ appearance.media_item.caption or appearance.media_item.filename }}">
                             {% else %}
-                            <div class="d-flex align-items-center justify-content-center h-100">
-                                <i class="bi bi-file-earmark fs-1 text-muted"></i>
+                            <div class="d-flex align-items-center justify-content-center h-100 text-white-50">
+                                <i class="bi bi-file-earmark-image fs-2"></i>
                             </div>
                             {% endif %}
+                            <span class="position-absolute top-0 start-0 m-2 badge bg-dark opacity-75">
+                                {{ appearance.media_item.type_media }}
+                            </span>
                         </div>
-                        <div class="card-body">
-                            <h6 class="card-title text-truncate">
+                        <div class="card-body p-3">
+                            <h6 class="card-title mb-1 text-truncate small fw-semibold">
                                 {{ appearance.media_item.caption or appearance.media_item.filename }}
                             </h6>
-                            <p class="card-text small">
-                                <span class="badge bg-info">{{ appearance.media_item.type_media }}</span>
-                                {% if appearance.appearance_context %}
-                                <br><small class="text-muted">{{ appearance.appearance_context }}</small>
-                                {% endif %}
-                            </p>
+                            {% if appearance.appearance_context %}
+                            <p class="card-text small text-muted mb-2">{{ appearance.appearance_context }}</p>
+                            {% endif %}
                             {% if appearance.activity %}
-                            <a href="{{ url_for('activity_detail', id_activity=appearance.activity.id_activity) }}" 
-                               class="btn btn-sm btn-outline-primary w-100">
+                            <a href="{{ url_for('activity.detail', id_activity=appearance.activity.id_activity) }}"
+                               class="btn btn-sm btn-outline-secondary w-100">
                                 {{ appearance.activity.title }}
                             </a>
                             {% endif %}
@@ -125,21 +165,27 @@
                 {% endfor %}
             </div>
             {% else %}
-            <p class="text-muted">Nog geen media voor dit lid.</p>
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-camera-reels fs-1 d-block mb-3 opacity-50"></i>
+                <p>Nog geen media gekoppeld aan dit lid.</p>
+                <small>Voeg verschijningen toe via de media galerij van een activiteit.</small>
+            </div>
             {% endif %}
         </div>
     </div>
 
     <!-- Name History -->
     {% if member.name_history %}
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="mb-0">📝 Naam geschiedenis</h5>
+    <div class="card shadow border-0">
+        <div class="card-header bg-gradient-info text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-clock-history me-2"></i>Naam geschiedenis
+            </h5>
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-sm">
-                    <thead>
+                <table class="table table-sm table-borderless">
+                    <thead class="table-light">
                         <tr>
                             <th>Naam</th>
                             <th>Van</th>
@@ -150,10 +196,16 @@
                     <tbody>
                         {% for name in member.name_history %}
                         <tr>
-                            <td>{{ name.first_name }} {{ name.last_name }}</td>
-                            <td>{{ name.valid_from.strftime('%d-%m-%Y') if name.valid_from else '-' }}</td>
-                            <td>{{ name.valid_to.strftime('%d-%m-%Y') if name.valid_to else 'heden' }}</td>
-                            <td>{{ name.change_reason or '-' }}</td>
+                            <td class="fw-medium">{{ name.first_name }} {{ name.last_name }}</td>
+                            <td>{{ name.valid_from | date if name.valid_from else '—' }}</td>
+                            <td>
+                                {% if name.valid_to %}
+                                {{ name.valid_to | date }}
+                                {% else %}
+                                <span class="badge bg-success-subtle text-success">Heden</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted">{{ name.change_reason or '—' }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -163,4 +215,24 @@
     </div>
     {% endif %}
 </div>
+
+<style>
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+        transform: translateY(-3px);
+        transition: all 0.2s ease;
+    }
+    .transition {
+        transition: all 0.2s ease;
+    }
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    }
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #198754 0%, #157347 100%);
+    }
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);
+    }
+</style>
 {% endblock %}

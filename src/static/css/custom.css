@@ -1,0 +1,42 @@
+/* custom.css */
+
+:root {
+    --primary-gradient: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    --info-gradient:   linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);
+    --success-gradient: linear-gradient(135deg, #198754 0%, #157347 100%);
+}
+
+.bg-gradient-primary { background: var(--primary-gradient); }
+.bg-gradient-info    { background: var(--info-gradient); }
+.bg-gradient-success { background: var(--success-gradient); }
+
+.hover-shadow:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+    transform: translateY(-3px);
+    transition: all 0.25s ease;
+}
+
+.transition {
+    transition: all 0.25s ease;
+}
+
+.card-header {
+    font-weight: 500;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+[data-bs-theme="dark"] {
+    --bs-body-bg: #121212;
+    --bs-body-color: #e0e0e0;
+}
+
+[data-bs-theme="dark"] .bg-dark {
+    background-color: #0a0a0a !important;
+}
+
+[data-bs-theme="dark"] .text-muted {
+    color: #a0a0a0 !important;
+}

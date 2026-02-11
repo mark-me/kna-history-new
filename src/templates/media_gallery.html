@@ -1,133 +1,220 @@
-<div id="media-gallery" class="row g-3">
+{% extends "base.html" %}
+
+{% block title %}Media galerij - {{ activity.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <!-- Header (usually included from activity_detail, but keeping minimal here if standalone) -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-images me-2 text-primary"></i>
+            Media galerij
+            <small class="text-muted ms-2">({{ media|length }})</small>
+        </h2>
+
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm" id="select-all-btn">
+                <i class="bi bi-check-square me-1"></i>Alles selecteren
+            </button>
+            <button class="btn btn-outline-danger btn-sm" id="deselect-all-btn" disabled>
+                <i class="bi bi-square me-1"></i>Deselecteren
+            </button>
+        </div>
+    </div>
+
     {% if media %}
+    <!-- Gallery Grid -->
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-3" id="media-grid">
         {% for item in media %}
-        <div class="col-md-3">
-            <div class="card h-100">
-                <div class="card-img-top bg-light position-relative" style="height: 200px;">
+        <div class="col">
+            <div class="card media-card h-100 shadow-sm border-0 position-relative overflow-hidden hover-shadow transition">
+                <!-- Image / Placeholder -->
+                <div class="card-img-top position-relative ratio ratio-1x1 bg-dark-subtle">
                     {% if item.type_media in ['foto', 'poster'] %}
-                        <img src="{{ url_for('serve_thumbnail', rel_path=item.storage_path) }}" 
-                             alt="{{ item.caption or item.filename }}"
-                             class="w-100 h-100 object-fit-cover">
+                    <img src="{{ url_for('media.serve_thumbnail', rel_path=item.storage_path) }}"
+                         class="object-fit-cover w-100 h-100 img-zoom"
+                         alt="{{ item.caption or item.filename }}"
+                         loading="lazy">
                     {% else %}
-                        <div class="d-flex align-items-center justify-content-center h-100">
-                            <i class="bi bi-file-earmark fs-1 text-muted"></i>
+                    <div class="d-flex align-items-center justify-content-center h-100 text-white-50">
+                        <i class="bi bi-file-earmark-{{ 'image' if item.type_media in ['pdf','programma'] else 'pdf' }} fs-1"></i>
+                    </div>
+                    {% endif %}
+
+                    <!-- Overlay on hover -->
+                    <div class="media-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-end opacity-0 transition">
+                        <div class="bg-gradient-dark text-white w-100 p-3 small">
+                            <div class="text-truncate fw-semibold mb-1">
+                                {{ item.caption or item.filename }}
+                            </div>
+                            <div>
+                                <span class="badge bg-white text-dark opacity-75 me-1">{{ item.type_media }}</span>
+                                {% if item.capture_date %}
+                                <span class="opacity-75">{{ item.capture_date | date }}</span>
+                                {% endif %}
+                            </div>
                         </div>
-                    {% endif %}
-                    
-                    <div class="position-absolute top-0 end-0 p-2">
-                        <input type="checkbox" name="media_ids" value="{{ item.id_media }}" 
-                               class="form-check-input media-checkbox">
+                    </div>
+
+                    <!-- Checkbox -->
+                    <div class="position-absolute top-0 end-0 m-2 z-2">
+                        <input type="checkbox" name="media_ids" value="{{ item.id_media }}"
+                               class="form-check-input media-checkbox bg-white shadow"
+                               id="media-{{ item.id_media }}">
                     </div>
                 </div>
-                
-                <div class="card-body">
-                    <h6 class="card-title text-truncate">{{ item.caption or item.filename }}</h6>
-                    <p class="card-text small">
-                        <span class="badge bg-info">{{ item.type_media }}</span>
-                        {% if item.capture_date %}
-                        <br><small class="text-muted">{{ item.capture_date.strftime('%d-%m-%Y') }}</small>
-                        {% endif %}
-                    </p>
-                    
-                    {% if item.appearances %}
-                    <div class="mt-2">
-                        <small class="text-muted">
-                            <i class="bi bi-people"></i> 
-                            {% for appearance in item.appearances %}
-                                {{ appearance.member.current_first_name }}{% if not loop.last %}, {% endif %}
-                            {% endfor %}
-                        </small>
-                    </div>
-                    {% endif %}
-                </div>
-                
-                <div class="card-footer bg-transparent">
-                    <div class="btn-group btn-group-sm w-100" role="group">
-                        <button type="button" class="btn btn-outline-primary" 
-                                onclick="editMedia({{ item.id_media }})">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary" 
-                                onclick="viewMedia({{ item.id_media }})">
-                            <i class="bi bi-eye"></i>
-                        </button>
+
+                <!-- Footer with quick info -->
+                <div class="card-footer bg-white border-0 py-2 px-3 small">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-truncate pe-2">
+                            {% if item.appearances %}
+                            <i class="bi bi-people-fill text-primary me-1"></i>
+                            {{ item.appearances|length }}
+                            {% else %}
+                            <i class="bi bi-person-x text-muted me-1"></i>0
+                            {% endif %}
+                        </div>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-secondary" title="Bewerken"
+                                    onclick="editMedia({{ item.id_media }})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" title="Bekijken"
+                                    onclick="viewMedia({{ item.id_media }})">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         {% endfor %}
-        
-        <div class="col-12 mt-4">
-            <div class="card bg-light">
-                <div class="card-body">
-                    <h6>Geselecteerde media toewijzen aan leden</h6>
-                    <form method="POST" action="{{ url_for('bulk_assign_appearances', id_activity=activity_id) }}"
-                          id="bulk-assign-form">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label class="form-label">Selecteer leden</label>
-                                <select name="member_ids" class="form-select" multiple size="5">
-                                    {% for member in members|default([]) %}
-                                    <option value="{{ member.id_member }}">
-                                        {{ member.current_first_name }} {{ member.current_last_name }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                                <small class="text-muted">Hold Ctrl/Cmd voor meerdere</small>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Optioneel: koppel aan rol</label>
-                                <select name="role_ids" class="form-select" multiple size="5">
-                                    <option value="">Geen rol</option>
-                                    {% for role in roles|default([]) %}
-                                    <option value="{{ role.id_role }}">
-                                        {{ role.role_name }} - {{ role.member.current_first_name }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <button type="submit" class="btn btn-primary">
-                                Wijs geselecteerde media toe
-                            </button>
-                            <small class="text-muted ms-2">
-                                <span id="selected-count">0</span> media items geselecteerd
-                            </small>
-                        </div>
-                    </form>
-                </div>
+    </div>
+
+    <!-- Bulk Actions Panel (sticky bottom on mobile) -->
+    <div class="position-sticky bottom-0 start-0 w-100 bg-white shadow-lg border-top py-3 px-4 mt-4"
+         id="bulk-actions" style="display: none; z-index: 1000;">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <strong><span id="selected-count">0</span> geselecteerd</strong>
+            </div>
+            <div class="col text-end">
+                <form method="POST" action="{{ url_for('bulk_assign_appearances', id_activity=activity_id) }}"
+                      id="bulk-assign-form" class="d-inline-flex gap-2 flex-wrap justify-content-end">
+                    <!-- Hidden inputs for selected media will be added via JS -->
+
+                    <select name="member_ids" class="form-select form-select-sm" multiple size="1"
+                            style="width: auto; min-width: 180px;">
+                        <option value="" disabled>Selecteer lid(den)...</option>
+                        {% for member in members|default([]) %}
+                        <option value="{{ member.id_member }}">
+                            {{ member.current_first_name }} {{ member.current_last_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+
+                    <select name="role_ids" class="form-select form-select-sm" style="width: auto; min-width: 160px;">
+                        <option value="">Geen specifieke rol</option>
+                        {% for role in roles|default([]) %}
+                        <option value="{{ role.id_role }}">
+                            {{ role.role_name }} — {{ role.member.current_first_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="bi bi-people me-1"></i>Toewijzen
+                    </button>
+                </form>
             </div>
         </div>
+    </div>
+
     {% else %}
-    <div class="col-12">
-        <div class="alert alert-info">
-            <i class="bi bi-images"></i> Nog geen media toegevoegd aan deze activiteit.
-            <a href="{{ url_for('upload') }}" class="alert-link">Upload media</a>
-        </div>
+    <!-- Empty State -->
+    <div class="text-center py-5 my-5">
+        <i class="bi bi-images display-1 text-muted opacity-50 d-block mb-4"></i>
+        <h4>Nog geen media in deze activiteit</h4>
+        <p class="lead text-muted mb-4">
+            Upload foto's, posters of programmaboekjes om te beginnen
+        </p>
+        <a href="{{ url_for('media.upload') }}?activity={{ activity_id }}" class="btn btn-primary btn-lg">
+            <i class="bi bi-cloud-arrow-up me-2"></i>Nu uploaden
+        </a>
     </div>
     {% endif %}
 </div>
 
-<script>
-document.querySelectorAll('.media-checkbox').forEach(checkbox => {
-    checkbox.addEventListener('change', updateSelectedCount);
-});
+<style>
+    .media-card:hover .media-overlay { opacity: 1; }
+    .media-card:hover .img-zoom { transform: scale(1.08); }
+    .media-card .img-zoom {
+        transition: transform 0.4s ease;
+    }
+    .media-overlay {
+        background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.75) 100%);
+        transition: opacity 0.3s ease;
+    }
+    .hover-shadow:hover {
+        box-shadow: 0 0.75rem 1.5rem rgba(0,0,0,0.15) !important;
+        transform: translateY(-4px);
+        transition: all 0.25s ease;
+    }
+    .transition { transition: all 0.25s ease; }
+    .media-checkbox {
+        transform: scale(1.3);
+        cursor: pointer;
+    }
+    .bg-gradient-dark {
+        background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.85));
+    }
+</style>
 
-function updateSelectedCount() {
-    const count = document.querySelectorAll('.media-checkbox:checked').length;
-    document.getElementById('selected-count').textContent = count;
-    
-    // Update form to only include checked items
-    const form = document.getElementById('bulk-assign-form');
-    form.querySelectorAll('input[name="media_ids"]').forEach(input => input.remove());
-    
-    document.querySelectorAll('.media-checkbox:checked').forEach(checkbox => {
+<script>
+// Selection handling
+const checkboxes = document.querySelectorAll('.media-checkbox');
+const selectedCountEl = document.getElementById('selected-count');
+const bulkActions = document.getElementById('bulk-actions');
+const selectAllBtn = document.getElementById('select-all-btn');
+const deselectAllBtn = document.getElementById('deselect-all-btn');
+const form = document.getElementById('bulk-assign-form');
+
+function updateSelection() {
+    const checked = Array.from(checkboxes).filter(cb => cb.checked);
+    const count = checked.length;
+
+    selectedCountEl.textContent = count;
+    bulkActions.style.display = count > 0 ? 'block' : 'none';
+    deselectAllBtn.disabled = count === 0;
+
+    // Clear previous hidden inputs
+    form.querySelectorAll('input[name="media_ids"]').forEach(el => el.remove());
+
+    // Add current selection
+    checked.forEach(cb => {
         const input = document.createElement('input');
         input.type = 'hidden';
         input.name = 'media_ids';
-        input.value = checkbox.value;
+        input.value = cb.value;
         form.appendChild(input);
     });
 }
+
+checkboxes.forEach(cb => cb.addEventListener('change', updateSelection));
+
+// Select / Deselect all
+selectAllBtn.addEventListener('click', () => {
+    checkboxes.forEach(cb => cb.checked = true);
+    updateSelection();
+});
+
+deselectAllBtn.addEventListener('click', () => {
+    checkboxes.forEach(cb => cb.checked = false);
+    updateSelection();
+});
+
+// Initial state
+updateSelection();
 </script>
+{% endblock %}

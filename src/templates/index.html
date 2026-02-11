@@ -1,88 +1,155 @@
 {% extends "base.html" %}
 
-{% block title %}KNA Archief - Home{% endblock %}
+{% block title %}KNA Archief - Welkom{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-12">
-            <h1>KNA Theater Archief</h1>
-            <p class="lead">Welkom bij het digitaal archief van KNA</p>
-        </div>
+<div class="container mt-4 mb-5">
+    <!-- Hero / Welcome -->
+    <div class="text-center mb-5 py-4">
+        <h1 class="display-4 fw-bold mb-3">
+            <i class="bi bi-archive-fill text-primary me-3"></i>KNA Theater Archief
+        </h1>
+        <p class="lead text-muted mx-auto" style="max-width: 720px;">
+            Digitaal overzicht van alle voorstellingen, evenementen, rollen, foto's en herinneringen van KNA.
+        </p>
     </div>
 
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">📤 Media uploaden</h5>
-                    <p class="card-text">Upload gescande foto's, posters, programma's en andere media</p>
-                    <a href="{{ url_for('upload') }}" class="btn btn-primary">Start uploaden</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">🎭 Activiteiten beheren</h5>
-                    <p class="card-text">Bekijk, bewerk en organiseer theaterproducties en evenementen</p>
-                    <a href="{{ url_for('activity_list') }}" class="btn btn-primary">Bekijk activiteiten</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mt-3">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">➕ Nieuwe activiteit</h5>
-                    <p class="card-text">Voeg een nieuwe productie of evenement toe</p>
-                    <a href="{{ url_for('activity_new') }}" class="btn btn-secondary">Activiteit aanmaken</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">📊 Statistieken</h5>
-                    <p class="card-text">Overzicht van het archief</p>
-                    <ul class="list-unstyled mt-2">
-                        <li><strong>{{ activities|length }}</strong> recente activiteiten</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {% if activities %}
-    <div class="row mt-5">
-        <div class="col-md-12">
-            <h3>Recente activiteiten</h3>
-            <div class="list-group">
-                {% for activity in activities %}
-                <a href="{{ url_for('activity_detail', id_activity=activity.id_activity) }}" 
-                   class="list-group-item list-group-item-action">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">{{ activity.title }}</h5>
-                        <small class="text-muted">{{ activity.year }}</small>
-                    </div>
-                    <p class="mb-1">
-                        <span class="badge bg-secondary">{{ activity.type }}</span>
-                        {% if activity.start_date %}
-                        <small class="text-muted">{{ activity.start_date.strftime('%d-%m-%Y') }}</small>
-                        {% endif %}
+    <!-- Quick Action Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow border-0 hover-shadow transition text-center">
+                <div class="card-body py-5">
+                    <i class="bi bi-cloud-arrow-up display-4 text-primary mb-3 d-block"></i>
+                    <h5 class="card-title">Media uploaden</h5>
+                    <p class="card-text text-muted mb-4">
+                        Foto's, posters, programma's en scans toevoegen
                     </p>
-                    {% if activity.description %}
-                    <small class="text-muted">{{ activity.description[:100] }}...</small>
-                    {% endif %}
-                </a>
-                {% endfor %}
+                    <a href="{{ url_for('media.upload') }}" class="btn btn-primary stretched-link">
+                        Start uploaden
+                    </a>
+                </div>
             </div>
         </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow border-0 hover-shadow transition text-center">
+                <div class="card-body py-5">
+                    <i class="bi bi-easel3 display-4 text-success mb-3 d-block"></i>
+                    <h5 class="card-title">Activiteiten beheren</h5>
+                    <p class="card-text text-muted mb-4">
+                        Voorstellingen, repetities en evenementen bekijken & bewerken
+                    </p>
+                    <a href="{{ url_for('core.activity_list') }}" class="btn btn-success stretched-link">
+                        Bekijk activiteiten
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow border-0 hover-shadow transition text-center">
+                <div class="card-body py-5">
+                    <i class="bi bi-person-plus display-4 text-info mb-3 d-block"></i>
+                    <h5 class="card-title">Nieuw lid / activiteit</h5>
+                    <p class="card-text text-muted mb-4">
+                        Snel een nieuw lid of productie aanmaken
+                    </p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('activity.new') }}" class="btn btn-outline-primary btn-sm">
+                            Nieuwe activiteit
+                        </a>
+                        <a href="{{ url_for('member.new') }}" class="btn btn-outline-info btn-sm">
+                            Nieuw lid
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow border-0 hover-shadow transition text-center bg-light">
+                <div class="card-body py-5">
+                    <i class="bi bi-graph-up display-4 text-secondary mb-3 d-block"></i>
+                    <h5 class="card-title">Archief overzicht</h5>
+                    <p class="card-text text-muted mb-3">
+                        Snelle statistieken & recente toevoegingen
+                    </p>
+                    <div class="small fw-semibold">
+                        <div class="mb-1">{{ activities|length }} activiteiten</div>
+                        {% if members_count is defined %}
+                        <div class="mb-1">{{ members_count }} leden</div>
+                        {% endif %}
+                        {% if media_count is defined %}
+                        <div>{{ media_count }} media items</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    {% if activities %}
+    <div class="card shadow border-0">
+        <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recente activiteiten</h5>
+            <a href="{{ url_for('core.activity_list') }}" class="btn btn-sm btn-light">
+                Alles bekijken →
+            </a>
+        </div>
+        <div class="list-group list-group-flush">
+            {% for activity in activities[:6] %}  <!-- limit to 6 most recent -->
+            <a href="{{ url_for('activity.detail', id_activity=activity.id_activity) }}"
+               class="list-group-item list-group-item-action px-4 py-3">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                    <div>
+                        <h6 class="mb-1">{{ activity.title }}</h6>
+                        <small class="text-muted">
+                            <span class="badge bg-secondary-subtle text-secondary me-2">{{ activity.type or '—' }}</span>
+                            {{ activity.year }}
+                        </small>
+                    </div>
+                    {% if activity.start_date %}
+                    <small class="text-nowrap ms-3">
+                        {{ activity.start_date | date }}
+                    </small>
+                    {% endif %}
+                </div>
+                {% if activity.description %}
+                <p class="mb-0 mt-1 small text-muted">
+                    {{ activity.description|truncate(120) }}
+                </p>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-light shadow text-center py-5 my-5">
+        <i class="bi bi-calendar-event display-1 text-muted opacity-50 d-block mb-4"></i>
+        <h4>Welkom bij het KNA Archief!</h4>
+        <p class="lead mb-4">Er zijn nog geen activiteiten geregistreerd.</p>
+        <a href="{{ url_for('activity.new') }}" class="btn btn-primary btn-lg">
+            <i class="bi bi-plus-lg me-2"></i>Eerste activiteit aanmaken
+        </a>
     </div>
     {% endif %}
 </div>
+
+<style>
+    .hover-shadow:hover {
+        box-shadow: 0 0.75rem 1.5rem rgba(0,0,0,0.12) !important;
+        transform: translateY(-4px);
+        transition: all 0.25s ease;
+    }
+    .transition {
+        transition: all 0.25s ease;
+    }
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    }
+    .stretched-link::after {
+        z-index: 1;
+    }
+</style>
 {% endblock %}

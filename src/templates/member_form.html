@@ -1,79 +1,161 @@
 {% extends "base.html" %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}{{ title }} - KNA Archief{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ url_for('member_list') }}">Leden</a></li>
-                    <li class="breadcrumb-item active">{{ title }}</li>
-                </ol>
-            </nav>
+<div class="container mt-4 mb-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb bg-transparent ps-0">
+            <li class="breadcrumb-item"><a href="{{ url_for('core.index') }}" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('member.list') }}" class="text-decoration-none">Leden</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+        </ol>
+    </nav>
 
-            <h2>{{ title }}</h2>
+    <!-- Header -->
+    <div class="mb-5">
+        <h1 class="mb-2">
+            <i class="bi bi-person-circle me-3 text-primary"></i>
+            {{ title }}
+        </h1>
+        <p class="lead text-muted">
+            {% if member %}Bewerk de gegevens van {{ member.current_first_name }} {{ member.current_last_name }}
+            {% else %}Voeg een nieuw lid toe aan het archief{% endif %}
+        </p>
+    </div>
 
-            <div class="card mt-4">
-                <div class="card-body">
-                    <form method="POST">
-                        {{ form.hidden_tag() }}
+    <!-- Main Form Card -->
+    <div class="card shadow border-0">
+        <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-person-badge-fill me-2"></i>Persoonsgegevens
+            </h5>
+            <small class="opacity-75">Velden met * zijn verplicht</small>
+        </div>
 
-                        <div class="mb-3">
+        <div class="card-body p-4 p-md-5">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                <!-- First & Last Name -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            {{ form.first_name(class="form-control form-control-lg", placeholder=" ") }}
                             {{ form.first_name.label(class="form-label") }}
-                            {{ form.first_name(class="form-control", placeholder="Jan") }}
                             {% if form.first_name.errors %}
-                                <div class="text-danger">{{ form.first_name.errors[0] }}</div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-3">
-                            {{ form.last_name.label(class="form-label") }}
-                            {{ form.last_name(class="form-control", placeholder="Jansen") }}
-                            {% if form.last_name.errors %}
-                                <div class="text-danger">{{ form.last_name.errors[0] }}</div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-3">
-                            {{ form.id_lid.label(class="form-label") }}
-                            {{ form.id_lid(class="form-control", placeholder="jan-jansen", 
-                                          readonly=member is defined) }}
-                            <div class="form-text">
-                                {% if member %}
-                                ID kan niet worden gewijzigd
-                                {% else %}
-                                Laat leeg voor automatische generatie (voornaam-achternaam)
-                                {% endif %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.first_name.errors[0] }}
                             </div>
-                            {% if form.id_lid.errors %}
-                                <div class="text-danger">{{ form.id_lid.errors[0] }}</div>
                             {% endif %}
                         </div>
+                    </div>
 
-                        <div class="d-grid gap-2">
-                            {{ form.submit(class="btn btn-primary btn-lg") }}
-                            <a href="{{ url_for('member_list') }}" class="btn btn-secondary">Annuleren</a>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            {{ form.last_name(class="form-control form-control-lg", placeholder=" ") }}
+                            {{ form.last_name.label(class="form-label") }}
+                            {% if form.last_name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.last_name.errors[0] }}
+                            </div>
+                            {% endif %}
                         </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
 
-            {% if not member %}
-            <div class="card mt-3 bg-light">
-                <div class="card-body">
-                    <h6>💡 Tips</h6>
-                    <ul class="mb-0">
-                        <li>Het ID wordt automatisch aangemaakt als je het veld leeg laat</li>
-                        <li>Je kunt later meer gegevens toevoegen zoals geboortedatum en notities</li>
-                        <li>Naam wijzigingen worden automatisch bijgehouden in de naam geschiedenis</li>
-                    </ul>
+                <!-- Member ID -->
+                <div class="mb-4">
+                    <div class="form-floating">
+                        {{ form.id_lid(class="form-control form-control-lg", placeholder=" ", readonly=member is defined) }}
+                        {{ form.id_lid.label(class="form-label") }}
+                    </div>
+                    <div class="form-text text-muted mt-2">
+                        {% if member %}
+                        <strong>ID kan niet meer gewijzigd worden na aanmaken.</strong>
+                        {% else %}
+                        Laat leeg → automatisch gegenereerd op basis van voornaam-achternaam (bijv. <code>jan-jansen</code>)
+                        {% endif %}
+                    </div>
+                    {% if form.id_lid.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.id_lid.errors[0] }}
+                    </div>
+                    {% endif %}
                 </div>
-            </div>
-            {% endif %}
+
+                <!-- Birth date (optional) -->
+                <div class="mb-5">
+                    <div class="form-floating">
+                        {{ form.birth_date(class="form-control form-control-lg", type="date") }}
+                        {{ form.birth_date.label(class="form-label") }}
+                    </div>
+                    <div class="form-text text-muted mt-1">
+                        Geboortedatum (optioneel — helpt bij onderscheid tussen leden met dezelfde naam)
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="mb-5">
+                    <label class="form-label fw-semibold fs-5">{{ form.notes.label.text }}</label>
+                    {{ form.notes(class="form-control form-control-lg", rows=4, placeholder="Bijzonderheden, bijnamen, contactinfo, interne opmerkingen…") }}
+                </div>
+
+                <!-- Action buttons -->
+                <div class="d-flex flex-column flex-sm-row gap-3">
+                    {{ form.submit(class="btn btn-primary btn-lg px-5") }}
+                    <a href="{{ url_for('member.list') }}" class="btn btn-outline-secondary btn-lg px-5">
+                        Annuleren
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
+
+    <!-- Tips Card (only shown when creating new member) -->
+    {% if not member %}
+    <div class="card shadow border-0 bg-light mt-4">
+        <div class="card-header bg-gradient-info text-white">
+            <h5 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Tips voor nieuwe leden</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-unstyled mb-0">
+                <li class="mb-3">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Vul voor- en achternaam zo volledig mogelijk in
+                </li>
+                <li class="mb-3">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Laat het ID-veld leeg voor automatische generatie
+                </li>
+                <li class="mb-3">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Naamwijzigingen (bijv. huwelijk) worden later automatisch bijgehouden in de naamgeschiedenis
+                </li>
+                <li>
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Geboortedatum en notities kun je later nog toevoegen
+                </li>
+            </ul>
+        </div>
+    </div>
+    {% endif %}
 </div>
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    }
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);
+    }
+    .form-floating > label {
+        color: #6c757d !important;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.25);
+    }
+</style>
 {% endblock %}

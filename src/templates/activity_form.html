@@ -1,96 +1,175 @@
 {% extends "base.html" %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}{{ title }} - KNA Archief{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <h2>{{ title }}</h2>
+<div class="container mt-4 mb-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb bg-transparent ps-0">
+            <li class="breadcrumb-item"><a href="{{ url_for('core.index') }}" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('core.activity_list') }}" class="text-decoration-none">Activiteiten</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+        </ol>
+    </nav>
 
-            <div class="card mt-4">
-                <div class="card-body">
-                    <form method="POST">
-                        {{ form.hidden_tag() }}
+    <!-- Header -->
+    <div class="mb-4">
+        <h1 class="mb-2">
+            <i class="bi bi-easel3 me-2 text-primary"></i>
+            {{ title }}
+        </h1>
+        <p class="text-muted lead">
+            {% if 'nieuw' in title|lower %}Voeg een nieuwe voorstelling, evenement of productie toe{% else %}Bewerk de details van deze activiteit{% endif %}
+        </p>
+    </div>
 
-                        <div class="row">
-                            <div class="col-md-8">
-                                <div class="mb-3">
-                                    {{ form.title.label(class="form-label") }}
-                                    {{ form.title(class="form-control", placeholder="Bijv. Ajakkes, Hamlet, Kerstdiner") }}
-                                    {% if form.title.errors %}
-                                        <div class="text-danger">{{ form.title.errors[0] }}</div>
-                                    {% endif %}
-                                </div>
+    <!-- Main Form Card -->
+    <div class="card shadow border-0">
+        <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-journal-text me-2"></i>Algemene informatie
+            </h5>
+            <small class="opacity-75">Verplichte velden zijn gemarkeerd met *</small>
+        </div>
+        <div class="card-body p-4 p-md-5">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                <!-- Title & Year row -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-8">
+                        <div class="form-floating">
+                            {{ form.title(class="form-control form-control-lg", placeholder=" ") }}
+                            {{ form.title.label(class="form-label") }}
+                            {% if form.title.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.title.errors[0] }}
                             </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    {{ form.year.label(class="form-label") }}
-                                    {{ form.year(class="form-control", placeholder="2024") }}
-                                    {% if form.year.errors %}
-                                        <div class="text-danger">{{ form.year.errors[0] }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            {{ form.type.label(class="form-label") }}
-                            {{ form.type(class="form-select") }}
-                            {% if form.type.errors %}
-                                <div class="text-danger">{{ form.type.errors[0] }}</div>
                             {% endif %}
                         </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    {{ form.start_date.label(class="form-label") }}
-                                    {{ form.start_date(class="form-control", type="date") }}
-                                    <div class="form-text">Eerste voorstelling of evenement datum</div>
-                                </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            {{ form.year(class="form-control form-control-lg", placeholder=" ") }}
+                            {{ form.year.label(class="form-label") }}
+                            {% if form.year.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.year.errors[0] }}
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    {{ form.end_date.label(class="form-label") }}
-                                    {{ form.end_date(class="form-control", type="date") }}
-                                    <div class="form-text">Laatste voorstelling (optioneel)</div>
-                                </div>
-                            </div>
+                            {% endif %}
                         </div>
-
-                        <div class="mb-3">
-                            {{ form.folder.label(class="form-label") }}
-                            {{ form.folder(class="form-control", placeholder="Laat leeg voor automatische naam") }}
-                            <div class="form-text">
-                                Mapnaam voor media opslag. Wordt automatisch aangemaakt als: jaar-titel
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            {{ form.description.label(class="form-label") }}
-                            {{ form.description(class="form-control", rows=4, placeholder="Korte beschrijving of samenvatting...") }}
-                        </div>
-
-                        <div class="d-grid gap-2">
-                            {{ form.submit(class="btn btn-primary btn-lg") }}
-                            <a href="{{ url_for('activity_list') }}" class="btn btn-secondary">Annuleren</a>
-                        </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
 
-            <div class="card mt-3 bg-light">
-                <div class="card-body">
-                    <h6>💡 Tips</h6>
-                    <ul class="mb-0">
-                        <li>De mapnaam wordt gebruikt voor het organiseren van media bestanden</li>
-                        <li>Als je geen mapnaam opgeeft, wordt automatisch "{jaar}-{titel}" gebruikt</li>
-                        <li>Je kunt later nog rollen en media toevoegen</li>
-                    </ul>
+                <!-- Type -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold fs-5">{{ form.type.label.text }} *</label>
+                    {{ form.type(class="form-select form-select-lg") }}
+                    {% if form.type.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.type.errors[0] }}
+                    </div>
+                    {% endif %}
                 </div>
-            </div>
+
+                <!-- Dates row -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            {{ form.start_date(class="form-control form-control-lg", type="date") }}
+                            {{ form.start_date.label(class="form-label") }}
+                            <div class="form-text text-muted mt-1">
+                                Datum van de première / eerste uitvoering
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            {{ form.end_date(class="form-control form-control-lg", type="date") }}
+                            {{ form.end_date.label(class="form-label") }}
+                            <div class="form-text text-muted mt-1">
+                                Laatste voorstelling (optioneel)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Folder -->
+                <div class="mb-4">
+                    <div class="form-floating">
+                        {{ form.folder(class="form-control form-control-lg", placeholder=" ") }}
+                        {{ form.folder.label(class="form-label") }}
+                    </div>
+                    <div class="form-text text-muted mt-1">
+                        Wordt automatisch aangemaakt als: <code>{{ activity.year }}-{{ activity.title|slugify if activity else 'titel' }}</code><br>
+                        Alleen letters, cijfers, streepjes en underscores aanbevolen
+                    </div>
+                    {% if form.folder.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.folder.errors[0] }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Description -->
+                <div class="mb-5">
+                    <label class="form-label fw-semibold fs-5">{{ form.description.label.text }}</label>
+                    {{ form.description(class="form-control form-control-lg", rows=5, placeholder="Korte samenvatting, genre, bijzonderheden, regisseur…") }}
+                </div>
+
+                <!-- Submit buttons -->
+                <div class="d-flex flex-column flex-sm-row gap-3">
+                    {{ form.submit(class="btn btn-primary btn-lg px-5") }}
+                    <a href="{{ url_for('core.activity_list') }}" class="btn btn-outline-secondary btn-lg px-5">
+                        Annuleren
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tips sidebar / card -->
+    <div class="card shadow border-0 bg-light mt-4">
+        <div class="card-header bg-gradient-info text-white">
+            <h5 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Tips voor een goed archief</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-unstyled mb-0">
+                <li class="mb-3">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Gebruik duidelijke, consistente titels (bijv. "Ajakkes 2025", "Kerstdiner 2024")
+                </li>
+                <li class="mb-3">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Vul het jaartal altijd in — dit bepaalt de sortering en mapstructuur
+                </li>
+                <li class="mb-3">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Een korte beschrijving helpt enorm bij het terugvinden later
+                </li>
+                <li>
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Na opslaan kun je direct media uploaden en rollen toevoegen
+                </li>
+            </ul>
         </div>
     </div>
 </div>
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    }
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);
+    }
+    .form-floating > label {
+        color: #6c757d !important;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.25);
+    }
+</style>
 {% endblock %}

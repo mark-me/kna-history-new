@@ -1,35 +1,127 @@
-<form method="get" class="mb-4">
-  <div class="row g-3">
-    <div class="col-md-4">
-      <input type="text" name="q" class="form-control" placeholder="Zoek in titel / beschrijving" value="{{ request.args.get('q', '') }}">
-    </div>
-    <div class="col-md-3">
-      <input type="number" name="year" class="form-control" placeholder="Jaar" value="{{ request.args.get('year', '') }}">
-    </div>
-    <div class="col-md-3">
-      <select name="type" class="form-select">
-        <option value="">Alle types</option>
-        <option value="Uitvoering">Uitvoering</option>
-        <option value="Event">Evenement</option>
-        <!-- etc. -->
-      </select>
-    </div>
-    <div class="col-md-2">
-      <button type="submit" class="btn btn-primary w-100">Filter</button>
-    </div>
-  </div>
-</form>
+{% extends "base.html" %}
 
-<div class="row row-cols-1 row-cols-md-3 g-4">
-  {% for act in activities %}
-  <div class="col">
-    <div class="card h-100">
-      <div class="card-body">
-        <h5 class="card-title">{{ act.title }}</h5>
-        <p class="card-text">{{ act.year }} – {{ act.type }}</p>
-        <a href="{{ url_for('activity_detail', id_activity=act.id_activity) }}" class="btn btn-primary">Bekijk</a>
-      </div>
+{% block title %}Activiteiten - KNA Archief{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb bg-transparent ps-0">
+            <li class="breadcrumb-item"><a href="{{ url_for('core.index') }}" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Activiteiten</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div>
+            <h1 class="mb-1">Activiteiten</h1>
+            <p class="text-muted lead fs-6">Overzicht van alle uitvoeringen, voorstellingen en evenementen</p>
+        </div>
+        <a href="{{ url_for('activity.new') }}" class="btn btn-primary btn-lg shadow-sm">
+            <i class="bi bi-plus-lg me-2"></i>Nieuwe activiteit
+        </a>
     </div>
-  </div>
-  {% endfor %}
+
+    <!-- Filters / Search Card -->
+    <div class="card shadow border-0 mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-5 col-lg-4">
+                    <label for="q" class="form-label fw-semibold">Zoeken</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" name="q" id="q" class="form-control border-start-0"
+                               placeholder="Titel of beschrijving…" value="{{ request.args.get('q', '') }}">
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-lg-2">
+                    <label for="year" class="form-label fw-semibold">Jaar</label>
+                    <input type="number" name="year" id="year" class="form-control"
+                           placeholder="Bijv. 2025" value="{{ request.args.get('year', '') }}">
+                </div>
+
+                <div class="col-md-3 col-lg-3">
+                    <label for="type" class="form-label fw-semibold">Type</label>
+                    <select name="type" id="type" class="form-select">
+                        <option value="">Alle types</option>
+                        <option value="Uitvoering" {% if request.args.get('type') == 'Uitvoering' %}selected{% endif %}>Uitvoering</option>
+                        <option value="Event" {% if request.args.get('type') == 'Event' %}selected{% endif %}>Evenement</option>
+                        <!-- Add more options as needed -->
+                        <option value="Repetitie">Repetitie</option>
+                        <option value="Workshop">Workshop</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2 col-lg-2 d-grid">
+                    <button type="submit" class="btn btn-primary mt-md-4">
+                        <i class="bi bi-funnel me-2"></i>Filteren
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results -->
+    {% if activities %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for act in activities %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0 hover-shadow transition">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title mb-2 text-truncate">{{ act.title }}</h5>
+                    <div class="mb-3">
+                        <span class="badge bg-primary-subtle text-primary me-2">{{ act.year }}</span>
+                        <span class="badge bg-secondary-subtle text-secondary">{{ act.type or 'Onbekend' }}</span>
+                    </div>
+                    {% if act.description %}
+                    <p class="card-text text-muted small flex-grow-1">
+                        {{ act.description|truncate(90) }}
+                    </p>
+                    {% endif %}
+                    <div class="mt-auto">
+                        <a href="{{ url_for('activity.detail', id_activity=act.id_activity) }}"
+                           class="btn btn-outline-primary btn-sm stretched-link">
+                            <i class="bi bi-arrow-right-circle me-1"></i>Bekijk details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="mt-4 text-muted text-center">
+        {{ activities|length }} activiteit{{ 'en' if activities|length != 1 else '' }} gevonden
+    </div>
+
+    {% else %}
+    <div class="alert alert-info shadow-sm text-center py-5 my-5">
+        <i class="bi bi-calendar-x display-4 d-block mb-3 text-muted"></i>
+        <h5>Geen activiteiten gevonden</h5>
+        {% if request.args.get('q') or request.args.get('year') or request.args.get('type') %}
+        <p>Probeer de filters aan te passen of een nieuwe activiteit toe te voegen.</p>
+        {% else %}
+        <p>Er zijn nog geen activiteiten in het archief.</p>
+        {% endif %}
+        <a href="{{ url_for('activity.new') }}" class="btn btn-primary mt-3">
+            <i class="bi bi-plus-lg me-2"></i>Eerste activiteit aanmaken
+        </a>
+    </div>
+    {% endif %}
 </div>
+
+<style>
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+        transform: translateY(-3px);
+        transition: all 0.2s ease;
+    }
+    .transition {
+        transition: all 0.2s ease;
+    }
+</style>
+{% endblock %}

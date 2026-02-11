@@ -1,68 +1,118 @@
 {% extends "base.html" %}
 
-{% block title %}Leden{% endblock %}
+{% block title %}Ledenoverzicht - KNA Archief{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1>Leden</h1>
-            <p class="text-muted">Overzicht van alle KNA leden</p>
+<div class="container mt-4 mb-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb bg-transparent ps-0">
+            <li class="breadcrumb-item"><a href="{{ url_for('core.index') }}" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Leden</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="row align-items-center mb-4 g-4">
+        <div class="col-lg-8">
+            <h1 class="mb-2">Leden</h1>
+            <p class="lead text-muted">
+                Overzicht van alle huidige en voormalige KNA-leden
+            </p>
         </div>
-        <div class="col-md-4 text-end">
-            <a href="{{ url_for('member_new') }}" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Nieuw lid
+        <div class="col-lg-4 text-lg-end">
+            <a href="{{ url_for('member.new') }}" class="btn btn-primary btn-lg shadow-sm">
+                <i class="bi bi-person-plus me-2"></i>Nieuw lid toevoegen
             </a>
         </div>
     </div>
 
-    <!-- Search -->
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <form method="GET" action="{{ url_for('member_list') }}" class="input-group">
-                <input type="text" name="q" class="form-control" 
-                       placeholder="Zoek op naam..." 
-                       value="{{ search or '' }}">
-                <button type="submit" class="btn btn-outline-secondary">Zoeken</button>
+    <!-- Search & Filter Card -->
+    <div class="card shadow border-0 mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('member.list') }}" class="row g-3 align-items-end">
+                <div class="col-md-6 col-lg-5">
+                    <label for="q" class="form-label fw-semibold">Zoeken op naam</label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" name="q" id="q" class="form-control border-start-0"
+                               placeholder="Voornaam, achternaam, bijnaam…" value="{{ search or '' }}">
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-lg-2 d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-search me-1"></i>Zoeken
+                    </button>
+                </div>
+
+                {% if search %}
+                <div class="col-auto ms-auto">
+                    <a href="{{ url_for('member.list') }}" class="btn btn-outline-secondary btn-lg">
+                        <i class="bi bi-x-lg me-1"></i>Filter wissen
+                    </a>
+                </div>
+                {% endif %}
             </form>
         </div>
     </div>
 
-    <!-- Members table -->
+    <!-- Members Table / Grid -->
     {% if members %}
-    <div class="card">
-        <div class="card-body">
+    <div class="card shadow border-0">
+        <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-people-fill me-2"></i>
+                {{ members|length }} lid{{ 'den' if members|length != 1 else '' }} gevonden
+            </h5>
+            <small class="opacity-75">Gesorteerd op naam</small>
+        </div>
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
+                <table class="table table-hover table-borderless mb-0 align-middle">
+                    <thead class="table-light">
                         <tr>
-                            <th>ID</th>
-                            <th>Naam</th>
-                            <th>Geboortedatum</th>
-                            <th>Acties</th>
+                            <th scope="col">ID</th>
+                            <th scope="col">Naam</th>
+                            <th scope="col">Geboren</th>
+                            <th scope="col" class="text-end">Acties</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for member in members %}
-                        <tr>
-                            <td><code>{{ member.id_member }}</code></td>
+                        <tr class="transition hover-shadow">
                             <td>
-                                <a href="{{ url_for('member_detail', id_member=member.id_member) }}">
+                                <code class="bg-light px-2 py-1 rounded">{{ member.id_member }}</code>
+                            </td>
+                            <td class="fw-medium">
+                                <a href="{{ url_for('member.detail', id_member=member.id_member) }}"
+                                   class="text-decoration-none text-dark stretched-link">
                                     {{ member.current_first_name }} {{ member.current_last_name }}
                                 </a>
-                            </td>
-                            <td>
-                                {% if member.birth_date %}
-                                {{ member.birth_date.strftime('%d-%m-%Y') }}
-                                {% else %}
-                                <span class="text-muted">Onbekend</span>
+                                {% if member.name_history and member.name_history|length > 1 %}
+                                <span class="badge bg-info-subtle text-info ms-2 small">Naam gewijzigd</span>
                                 {% endif %}
                             </td>
                             <td>
-                                <a href="{{ url_for('member_detail', id_member=member.id_member) }}" 
-                                   class="btn btn-sm btn-outline-primary">Bekijk</a>
-                                <a href="{{ url_for('member_edit', id_member=member.id_member) }}" 
-                                   class="btn btn-sm btn-outline-secondary">Bewerk</a>
+                                {% if member.birth_date %}
+                                {{ member.birth_date | date }}
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('member.detail', id_member=member.id_member) }}"
+                                       class="btn btn-outline-primary">
+                                        <i class="bi bi-eye"></i> Bekijk
+                                    </a>
+                                    <a href="{{ url_for('member.edit', id_member=member.id_member) }}"
+                                       class="btn btn-outline-secondary">
+                                        <i class="bi bi-pencil"></i> Bewerk
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -72,18 +122,50 @@
         </div>
     </div>
 
-    <p class="mt-3 text-muted">
-        {{ members|length }} lid{{ 'en' if members|length != 1 else '' }} gevonden
-    </p>
+    <div class="mt-4 text-center text-muted small">
+        {{ members|length }} resultaat{{ 'len' if members|length != 1 else '' }}
+        {% if search %}voor "{{ search }}"{% endif %}
+    </div>
+
     {% else %}
-    <div class="alert alert-info">
-        <i class="bi bi-info-circle"></i> 
+    <!-- Empty State -->
+    <div class="alert alert-light shadow text-center py-5 my-5">
+        <i class="bi bi-people display-1 text-muted opacity-50 d-block mb-4"></i>
+
         {% if search %}
-        Geen leden gevonden voor "{{ search }}"
+        <h4>Geen leden gevonden</h4>
+        <p class="lead mb-4">
+            Geen resultaten voor "{{ search }}".<br>
+            Probeer een andere spelling of ruim de zoekopdracht op.
+        </p>
         {% else %}
-        Nog geen leden in het archief. <a href="{{ url_for('member_new') }}">Voeg het eerste lid toe</a>
+        <h4>Nog geen leden geregistreerd</h4>
+        <p class="lead mb-4">
+            Het archief is leeg. Voeg het eerste lid toe om te beginnen.
+        </p>
         {% endif %}
+
+        <a href="{{ url_for('member.new') }}" class="btn btn-primary btn-lg">
+            <i class="bi bi-person-plus me-2"></i>Eerste lid toevoegen
+        </a>
     </div>
     {% endif %}
 </div>
+
+<style>
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.12) !important;
+        transform: translateY(-2px);
+        transition: all 0.2s ease;
+    }
+    .transition {
+        transition: all 0.2s ease;
+    }
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    }
+    .stretched-link::after {
+        z-index: 1;
+    }
+</style>
 {% endblock %}

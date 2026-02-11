@@ -1,110 +1,112 @@
 {% extends "base.html" %}
 
-{% block title %}{{ activity.title }} ({{ activity.year }}){% endblock %}
+{% block title %}{{ activity.title }} ({{ activity.year }}) - KNA Archief{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ url_for('activity_list') }}">Activiteiten</a></li>
-                    <li class="breadcrumb-item active">{{ activity.title }}</li>
-                </ol>
-            </nav>
+<div class="container mt-4 mb-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb bg-transparent ps-0">
+            <li class="breadcrumb-item"><a href="{{ url_for('core.index') }}" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('core.activity_list') }}" class="text-decoration-none">Activiteiten</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ activity.title }}</li>
+        </ol>
+    </nav>
 
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <h1>{{ activity.title }}</h1>
-                    <p class="text-muted">
-                        <span class="badge bg-secondary">{{ activity.type }}</span>
-                        {{ activity.year }}
-                        {% if activity.start_date %}
-                        | {{ activity.start_date.strftime('%d-%m-%Y') }}
-                        {% endif %}
-                        {% if activity.end_date %}
-                        - {{ activity.end_date.strftime('%d-%m-%Y') }}
-                        {% endif %}
-                    </p>
-                    {% if activity.description %}
-                    <p>{{ activity.description }}</p>
-                    {% endif %}
-                </div>
-                <div>
-                    <a href="{{ url_for('upload') }}?activity={{ activity.id_activity }}"
-                       class="btn btn-primary">
-                        <i class="bi bi-upload"></i> Upload media
-                    </a>
-                </div>
+    <!-- Header -->
+    <div class="row g-4 mb-4 align-items-start">
+        <div class="col-lg-9">
+            <h1 class="mb-2">{{ activity.title }}</h1>
+            <div class="d-flex flex-wrap gap-3 align-items-center text-muted mb-3">
+                <span class="badge bg-primary fs-6 px-3 py-2">{{ activity.type or 'Onbekend' }}</span>
+                <span class="fs-5 fw-bold">{{ activity.year }}</span>
+                {% if activity.start_date %}
+                <span>{{ activity.start_date | date }}</span>
+                {% endif %}
+                {% if activity.end_date %}
+                <span>– {{ activity.end_date | date }}</span>
+                {% endif %}
             </div>
+            {% if activity.description %}
+            <p class="lead text-muted">{{ activity.description }}</p>
+            {% endif %}
+        </div>
+        <div class="col-lg-3 text-lg-end">
+            <a href="{{ url_for('media.upload') }}?activity={{ activity.id_activity }}"
+               class="btn btn-primary btn-lg shadow-sm">
+                <i class="bi bi-upload me-2"></i>Media uploaden
+            </a>
         </div>
     </div>
 
-    <!-- Tabs for different sections -->
-    <ul class="nav nav-tabs" id="activityTabs" role="tablist">
-        <li class="nav-item">
-            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#media-tab">
-                📷 Media ({{ media|length }})
+    <!-- Tabs -->
+    <ul class="nav nav-tabs nav-fill mb-4 border-bottom-0" id="activityTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active rounded-top" id="media-tab" data-bs-toggle="tab" data-bs-target="#media-tab-pane" type="button" role="tab">
+                <i class="bi bi-images me-2"></i>Media ({{ media|length }})
             </button>
         </li>
-        <li class="nav-item">
-            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#roles-tab">
-                🎭 Rollen ({{ activity.roles|length }})
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-top" id="roles-tab" data-bs-toggle="tab" data-bs-target="#roles-tab-pane" type="button" role="tab">
+                <i class="bi bi-masks me-2"></i>Rollen ({{ activity.roles|length }})
             </button>
         </li>
-        <li class="nav-item">
-            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#workflow-tab">
-                ⚙️ Workflow
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-top" id="workflow-tab" data-bs-toggle="tab" data-bs-target="#workflow-tab-pane" type="button" role="tab">
+                <i class="bi bi-gear me-2"></i>Workflow
             </button>
         </li>
     </ul>
 
-    <div class="tab-content mt-4">
+    <div class="tab-content">
         <!-- MEDIA TAB -->
-        <div class="tab-pane fade show active" id="media-tab">
+        <div class="tab-pane fade show active" id="media-tab-pane" role="tabpanel">
             {% include 'media_gallery.html' %}
         </div>
 
         <!-- ROLES TAB -->
-        <div class="tab-pane fade" id="roles-tab">
-            <div class="row">
-                <div class="col-md-8">
-                    <h4>Cast & Crew</h4>
-                    {% include 'partials/roles_list.html' %}
+        <div class="tab-pane fade" id="roles-tab-pane" role="tabpanel">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-gradient-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-people-fill me-2"></i>Cast & Crew</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            {{ roles_list(activity) }}
+                        </div>
+                    </div>
                 </div>
 
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Rollen toevoegen</h5>
+                <div class="col-lg-4">
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-gradient-dark text-white">
+                            <h5 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Rollen toevoegen</h5>
                         </div>
                         <div class="card-body">
+                            <!-- Quick parse form -->
                             <form method="POST" action="{{ url_for('parse_roles', id_activity=activity.id_activity) }}">
                                 <div class="mb-3">
-                                    <label class="form-label">Plak programma tekst</label>
-                                    <textarea name="program_text" class="form-control" rows="10"
+                                    <label class="form-label fw-semibold">Programmatekst plakken</label>
+                                    <textarea name="program_text" class="form-control" rows="8"
                                               placeholder="Hamlet – Jane Doe&#10;Ophelia – John Smith&#10;Regisseur – Alice Johnson"></textarea>
-                                    <small class="form-text text-muted">
-                                        Formaat: Rol – Naam<br>
+                                    <div class="form-text text-muted mt-1">
+                                        Formaat: <code>Rol – Naam</code><br>
                                         Nieuwe leden worden automatisch aangemaakt
-                                    </small>
+                                    </div>
                                 </div>
                                 <button type="submit" class="btn btn-primary w-100">
-                                    Parse en voeg toe
+                                    <i class="bi bi-check2-square me-2"></i>Parse & toevoegen
                                 </button>
                             </form>
 
-                            <hr>
+                            <hr class="my-4">
 
-                            <div class="mb-3">
-                                <label class="form-label">Of handmatig toevoegen</label>
-                                <input type="text" class="form-control mb-2" placeholder="Rol naam">
-                                <select class="form-select mb-2">
-                                    <option>Selecteer lid...</option>
-                                </select>
-                                <button class="btn btn-secondary w-100">Voeg rol toe</button>
+                            <p class="text-center text-muted small mb-3">of handmatig toevoegen</p>
+                            <div class="d-grid">
+                                <button class="btn btn-outline-secondary" disabled title="Wordt binnenkort beschikbaar">
+                                    Handmatige rol toevoegen
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -113,108 +115,129 @@
         </div>
 
         <!-- WORKFLOW TAB -->
-        <div class="tab-pane fade" id="workflow-tab">
-            <div class="row">
-                <div class="col-md-8">
-                    <h4>Archivering workflow</h4>
-
-                    <div class="accordion" id="workflowAccordion">
-                        <!-- Step 1 -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#step1">
-                                    ✅ Stap 1: Activiteit aangemaakt
-                                </button>
-                            </h2>
-                            <div id="step1" class="accordion-collapse collapse show">
-                                <div class="accordion-body">
-                                    <p>De activiteit "{{ activity.title }}" is aangemaakt.</p>
-                                    <ul>
-                                        <li>ID: <code>{{ activity.id_activity }}</code></li>
-                                        <li>Map: <code>{{ activity.folder or 'Nog niet ingesteld' }}</code></li>
-                                        <li>Jaar: {{ activity.year }}</li>
-                                    </ul>
-                                </div>
-                            </div>
+        <div class="tab-pane fade" id="workflow-tab-pane" role="tabpanel">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-gradient-info text-white">
+                            <h5 class="mb-0"><i class="bi bi-list-check me-2"></i>Archiveringsworkflow</h5>
                         </div>
-
-                        <!-- Step 2 -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#step2">
-                                    {% if media|length > 0 %}✅{% else %}⏳{% endif %}
-                                    Stap 2: Media uploaden ({{ media|length }} items)
-                                </button>
-                            </h2>
-                            <div id="step2" class="accordion-collapse collapse">
-                                <div class="accordion-body">
-                                    {% if media|length > 0 %}
-                                    <p class="text-success">✓ Er zijn {{ media|length }} media items geüpload.</p>
-                                    {% else %}
-                                    <p class="text-muted">Nog geen media geüpload.</p>
-                                    {% endif %}
-                                    <a href="{{ url_for('upload') }}?activity={{ activity.id_activity }}"
-                                       class="btn btn-primary">Upload media</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Step 3 -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#step3">
-                                    {% if activity.roles|length > 0 %}✅{% else %}⏳{% endif %}
-                                    Stap 3: Rollen invoeren ({{ activity.roles|length }} rollen)
-                                </button>
-                            </h2>
-                            <div id="step3" class="accordion-collapse collapse">
-                                <div class="accordion-body">
-                                    {% if activity.roles|length > 0 %}
-                                    <p class="text-success">✓ Er zijn {{ activity.roles|length }} rollen toegevoegd.</p>
-                                    {% else %}
-                                    <p class="text-muted">Nog geen rollen toegevoegd. Dit is optioneel maar helpt bij het toewijzen van media.</p>
-                                    {% endif %}
-                                    <button class="btn btn-primary" onclick="document.querySelector('[data-bs-target=&quot;#roles-tab&quot;]').click()">
-                                        Ga naar rollen
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Step 4 -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#step4">
-                                    ⏳ Stap 4: Leden toewijzen aan media
-                                </button>
-                            </h2>
-                            <div id="step4" class="accordion-collapse collapse">
-                                <div class="accordion-body">
-                                    <p>Selecteer media items en wijs leden toe die op de foto's staan.</p>
-                                    <button class="btn btn-primary" onclick="document.querySelector('[data-bs-target=&quot;#media-tab&quot;]').click()">
-                                        Ga naar media
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Step 5 -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#step5">
-                                    ⏳ Stap 5: Bestanden finaliseren
-                                </button>
-                            </h2>
-                            <div id="step5" class="accordion-collapse collapse">
-                                <div class="accordion-body">
-                                    <p>Verplaats bestanden naar de definitieve locatie en genereer thumbnails.</p>
-                                    <form method="POST" action="{{ url_for('finalize_media_assignment', id_activity=activity.id_activity) }}">
-                                        <button type="submit" class="btn btn-success">
-                                            <i class="bi bi-check-circle"></i> Finaliseer alle media
+                        <div class="card-body">
+                            <div class="accordion accordion-flush" id="workflowAccordion">
+                                <!-- Step 1 -->
+                                <div class="accordion-item border-0 shadow-sm mb-3 rounded">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#step1">
+                                            <i class="bi bi-check-circle-fill text-success me-3"></i>Stap 1: Activiteit aangemaakt
                                         </button>
-                                    </form>
-                                    <div class="alert alert-info mt-3">
-                                        <strong>Let op:</strong> Dit verplaatst bestanden van uploads/ naar resources/{{ activity.folder }}/
+                                    </h2>
+                                    <div id="step1" class="accordion-collapse collapse show">
+                                        <div class="accordion-body">
+                                            <dl class="row mb-0 small">
+                                                <dt class="col-sm-4">ID</dt>
+                                                <dd class="col-sm-8"><code>{{ activity.id_activity }}</code></dd>
+                                                <dt class="col-sm-4">Map</dt>
+                                                <dd class="col-sm-8"><code>{{ activity.folder or 'Nog niet ingesteld' }}</code></dd>
+                                                <dt class="col-sm-4">Aangemaakt</dt>
+                                                <dd class="col-sm-8">{{ activity.year }}</dd>
+                                            </dl>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 2 -->
+                                <div class="accordion-item border-0 shadow-sm mb-3 rounded">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button {% if media|length == 0 %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#step2">
+                                            {% if media|length > 0 %}
+                                            <i class="bi bi-check-circle-fill text-success me-3"></i>
+                                            {% else %}
+                                            <i class="bi bi-hourglass-split text-warning me-3"></i>
+                                            {% endif %}
+                                            Stap 2: Media geüpload ({{ media|length }})
+                                        </button>
+                                    </h2>
+                                    <div id="step2" class="accordion-collapse collapse {% if media|length > 0 %}show{% endif %}">
+                                        <div class="accordion-body">
+                                            {% if media|length > 0 %}
+                                            <p class="text-success">✓ {{ media|length }} media items toegevoegd.</p>
+                                            {% else %}
+                                            <p class="text-muted">Nog geen media geüpload.</p>
+                                            {% endif %}
+                                            <a href="{{ url_for('media.upload') }}?activity={{ activity.id_activity }}"
+                                               class="btn btn-sm btn-primary">
+                                                <i class="bi bi-upload me-1"></i>Media uploaden
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 3 -->
+                                <div class="accordion-item border-0 shadow-sm mb-3 rounded">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#step3">
+                                            {% if activity.roles|length > 0 %}
+                                            <i class="bi bi-check-circle-fill text-success me-3"></i>
+                                            {% else %}
+                                            <i class="bi bi-hourglass-split text-warning me-3"></i>
+                                            {% endif %}
+                                            Stap 3: Rollen invoeren ({{ activity.roles|length }})
+                                        </button>
+                                    </h2>
+                                    <div id="step3" class="accordion-collapse collapse">
+                                        <div class="accordion-body">
+                                            {% if activity.roles|length > 0 %}
+                                            <p class="text-success">✓ {{ activity.roles|length }} rollen geregistreerd.</p>
+                                            {% else %}
+                                            <p class="text-muted">Rollen helpen bij het koppelen van leden aan foto's.</p>
+                                            {% endif %}
+                                            <button class="btn btn-sm btn-primary" type="button"
+                                                    data-bs-toggle="tab" data-bs-target="#roles-tab-pane">
+                                                <i class="bi bi-arrow-right me-1"></i>Naar rollen
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 4 -->
+                                <div class="accordion-item border-0 shadow-sm mb-3 rounded">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#step4">
+                                            <i class="bi bi-hourglass-split text-warning me-3"></i>
+                                            Stap 4: Leden toewijzen aan media
+                                        </button>
+                                    </h2>
+                                    <div id="step4" class="accordion-collapse collapse">
+                                        <div class="accordion-body">
+                                            <p>Wijs leden toe aan foto's/posters via de media galerij.</p>
+                                            <button class="btn btn-sm btn-primary" type="button"
+                                                    data-bs-toggle="tab" data-bs-target="#media-tab-pane">
+                                                <i class="bi bi-arrow-right me-1"></i>Naar media
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 5 -->
+                                <div class="accordion-item border-0 shadow-sm rounded">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#step5">
+                                            <i class="bi bi-hourglass-split text-warning me-3"></i>
+                                            Stap 5: Bestanden finaliseren
+                                        </button>
+                                    </h2>
+                                    <div id="step5" class="accordion-collapse collapse">
+                                        <div class="accordion-body">
+                                            <p>Verplaats uploads naar de definitieve map en genereer thumbnails.</p>
+                                            <form method="POST" action="{{ url_for('finalize_media_assignment', id_activity=activity.id_activity) }}">
+                                                <button type="submit" class="btn btn-success">
+                                                    <i class="bi bi-check-circle me-2"></i>Alles finaliseren
+                                                </button>
+                                            </form>
+                                            <div class="alert alert-info small mt-3 mb-0">
+                                                <strong>Let op:</strong> Bestanden gaan van <code>uploads/</code> → <code>resources/{{ activity.folder }}/</code>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -222,35 +245,34 @@
                     </div>
                 </div>
 
-                <div class="col-md-4">
-                    <div class="card bg-light">
+                <div class="col-lg-4">
+                    <div class="card shadow border-0 bg-light sticky-lg-top" style="top: 1.5rem;">
                         <div class="card-body">
-                            <h5>📊 Status overzicht</h5>
-                            <dl>
-                                <dt>Media items</dt>
-                                <dd>{{ media|length }}</dd>
-
-                                <dt>Rollen</dt>
-                                <dd>{{ activity.roles|length }}</dd>
-
-                                <dt>Media met toewijzingen</dt>
-                                <dd>
+                            <h5 class="card-title"><i class="bi bi-bar-chart me-2"></i>Status overzicht</h5>
+                            <dl class="row small mb-0">
+                                <dt class="col-6">Media items</dt>
+                                <dd class="col-6 text-end">{{ media|length }}</dd>
+                                <dt class="col-6">Rollen</dt>
+                                <dd class="col-6 text-end">{{ activity.roles|length }}</dd>
+                                <dt class="col-6">Toegewezen media</dt>
+                                <dd class="col-6 text-end">
                                     {% set assigned = media|selectattr('appearances')|list|length %}
                                     {{ assigned }} / {{ media|length }}
                                 </dd>
-
-                                <dt>Map locatie</dt>
-                                <dd><code>{{ activity.folder or 'Nog niet ingesteld' }}</code></dd>
+                                <dt class="col-6">Map</dt>
+                                <dd class="col-6 text-end"><code class="small">{{ activity.folder or '—' }}</code></dd>
                             </dl>
 
-                            <hr>
+                            <hr class="my-4">
 
-                            <h6>Snelle acties</h6>
+                            <h6 class="mb-3">Snelle acties</h6>
                             <div class="d-grid gap-2">
-                                <a href="{{ url_for('upload') }}?activity={{ activity.id_activity }}"
-                                   class="btn btn-sm btn-primary">Upload meer media</a>
-                                <button class="btn btn-sm btn-secondary">Bewerk activiteit</button>
-                                <button class="btn btn-sm btn-outline-danger">Verwijder activiteit</button>
+                                <a href="{{ url_for('media.upload') }}?activity={{ activity.id_activity }}"
+                                   class="btn btn-sm btn-primary">
+                                    <i class="bi bi-upload me-1"></i>Meer media uploaden
+                                </a>
+                                <button class="btn btn-sm btn-outline-secondary" disabled>Bewerk activiteit</button>
+                                <button class="btn btn-sm btn-outline-danger" disabled>Verwijder activiteit</button>
                             </div>
                         </div>
                     </div>
@@ -259,4 +281,12 @@
         </div>
     </div>
 </div>
+
+<style>
+    .bg-gradient-primary   { background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%); }
+    .bg-gradient-info      { background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%); }
+    .bg-gradient-dark      { background: linear-gradient(135deg, #343a40 0%, #212529 100%); }
+    .accordion-item.rounded { border-radius: 0.5rem !important; overflow: hidden; }
+    .nav-link.active       { background-color: #fff !important; border-color: #dee2e6 #dee2e6 #fff; font-weight: 500; }
+</style>
 {% endblock %}

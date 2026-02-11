@@ -47,12 +47,12 @@ def detail(id_member):
 
     if not member:
         flash("Lid niet gevonden", "danger")
-        return redirect(url_for("member_list"))
+        return redirect(url_for("member.list"))
 
     # Check GDPR permission
     if member.gdpr_permission != 1:
         flash("Dit lid is niet zichtbaar in het openbare archief", "warning")
-        return redirect(url_for("member_list"))
+        return redirect(url_for("member.list"))
 
     # Get member's roles
     roles = (
@@ -91,7 +91,7 @@ def new():
             f"Lid {member.current_first_name} {member.current_last_name} aangemaakt",
             "success",
         )
-        return redirect(url_for("member_detail", id_member=member.id_member))
+        return redirect(url_for("member.detail", id_member=member.id_member))
 
     return render_template("member_form.html", form=form, title="Nieuw lid")
 
@@ -128,7 +128,7 @@ def edit(id_member):
 
     if not member:
         flash("Lid niet gevonden", "danger")
-        return redirect(url_for("member_list"))
+        return redirect(url_for("member.list"))
 
     form = QuickMemberForm()
 
@@ -138,7 +138,7 @@ def edit(id_member):
         db.session.commit()
 
         flash("Lid bijgewerkt", "success")
-        return redirect(url_for("member_detail", id_member=member.id_member))
+        return redirect(url_for("member.detail", id_member=member.id_member))
 
     # Pre-populate form
     if request.method == "GET":

@@ -1,92 +1,215 @@
 {% extends "base.html" %}
 
-{% block title %}Media uploaden{% endblock %}
+{% block title %}Media uploaden - KNA Archief{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <h2>Media uploaden</h2>
-            <p class="text-muted">Upload gescande foto's, posters, programma's en andere media</p>
+<div class="container mt-4 mb-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb bg-transparent ps-0">
+            <li class="breadcrumb-item"><a href="{{ url_for('core.index') }}" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Media uploaden</li>
+        </ol>
+    </nav>
 
-            <div class="card mt-4">
-                <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data">
-                        {{ form.hidden_tag() }}
+    <!-- Header -->
+    <div class="row align-items-center mb-5 g-4">
+        <div class="col-lg-8">
+            <h1 class="mb-2">Media uploaden</h1>
+            <p class="lead text-muted">
+                Voeg gescande foto's, posters, programmaboekjes, flyers en andere archiefstukken toe
+            </p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <a href="{{ url_for('core.activity_list') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Terug naar activiteiten
+            </a>
+        </div>
+    </div>
 
-                        <div class="mb-3">
-                            {{ form.activity_id.label(class="form-label") }}
-                            <div class="input-group">
-                                {{ form.activity_id(class="form-select") }}
-                                <button type="button" class="btn btn-outline-secondary" 
-                                        data-bs-toggle="modal" data-bs-target="#newActivityModal">
-                                    <i class="bi bi-plus-circle"></i> Nieuwe activiteit
-                                </button>
-                            </div>
-                            {% if form.activity_id.errors %}
-                                <div class="text-danger">{{ form.activity_id.errors[0] }}</div>
-                            {% endif %}
-                        </div>
+    <!-- Main Upload Card -->
+    <div class="card shadow border-0 mb-4">
+        <div class="card-header bg-gradient-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-cloud-arrow-up me-2"></i>Upload formulier</h5>
+        </div>
+        <div class="card-body p-4">
+            <form method="POST" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
 
-                        <div class="mb-3">
-                            {{ form.files.label(class="form-label") }}
-                            {{ form.files(class="form-control", multiple=True, accept="image/*,.pdf") }}
-                            <div class="form-text">
-                                Je kunt meerdere bestanden tegelijk selecteren. 
-                                Ondersteunde formaten: JPG, PNG, PDF
-                            </div>
-                            {% if form.files.errors %}
-                                <div class="text-danger">{{ form.files.errors[0] }}</div>
-                            {% endif %}
-                        </div>
-
-                        <div class="d-grid gap-2">
-                            {{ form.submit(class="btn btn-primary btn-lg") }}
-                        </div>
-                    </form>
+                <!-- Activity Selection -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold fs-5">{{ form.activity_id.label.text }}</label>
+                    <div class="input-group input-group-lg">
+                        {{ form.activity_id(class="form-select border-end-0") }}
+                        <button type="button" class="btn btn-outline-light bg-white border"
+                                data-bs-toggle="modal" data-bs-target="#newActivityModal">
+                            <i class="bi bi-plus-circle me-1"></i>Nieuwe activiteit
+                        </button>
+                    </div>
+                    {% if form.activity_id.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.activity_id.errors[0] }}
+                    </div>
+                    {% endif %}
+                    <div class="form-text text-muted mt-2">
+                        Kies een bestaande activiteit of maak er eerst een aan.
+                    </div>
                 </div>
-            </div>
 
-            <div class="card mt-4 bg-light">
-                <div class="card-body">
-                    <h5>📋 Workflow stappen</h5>
-                    <ol>
-                        <li>Selecteer of maak de activiteit aan</li>
-                        <li>Upload de gescande bestanden</li>
-                        <li>Bestanden worden toegewezen aan de activiteit</li>
-                        <li>Op de activiteit pagina kun je:
-                            <ul>
-                                <li>Media type instellen (foto/poster/programma/etc.)</li>
-                                <li>Rollen invoeren vanuit programmaboekje</li>
-                                <li>Leden toewijzen aan media</li>
-                                <li>Bestanden finaliseren en organiseren</li>
-                            </ul>
-                        </li>
-                    </ol>
+                <!-- File Upload -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold fs-5">{{ form.files.label.text }}</label>
+                    <div class="dropzone border border-2 border-dashed rounded-3 p-5 text-center bg-light"
+                         id="dropzone-area">
+                        <i class="bi bi-cloud-upload display-1 text-primary mb-3 d-block"></i>
+                        <h5 class="mb-2">Sleep bestanden hierheen of klik om te kiezen</h5>
+                        <p class="text-muted mb-1">Meerdere bestanden tegelijk mogelijk</p>
+                        <small class="text-muted">JPG, PNG, PDF • Max. 50 MB per bestand aanbevolen</small>
+
+                        <!-- Actual file input (hidden) -->
+                        <div class="mt-4">
+                            {{ form.files(class="form-control d-none", multiple=True, accept="image/*,.pdf", id="file-input") }}
+                            <button type="button" class="btn btn-outline-primary mt-3" id="select-files-btn">
+                                <i class="bi bi-folder2-open me-2"></i>Bestanden kiezen
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Selected files preview -->
+                    <div id="file-preview" class="mt-3 row g-2" style="display: none;"></div>
+
+                    {% if form.files.errors %}
+                    <div class="alert alert-danger mt-3">
+                        {{ form.files.errors[0] }}
+                    </div>
+                    {% endif %}
                 </div>
-            </div>
+
+                <div class="d-grid">
+                    {{ form.submit(class="btn btn-primary btn-lg") }}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Workflow / Tips Card -->
+    <div class="card shadow border-0 bg-light">
+        <div class="card-header bg-gradient-info text-white">
+            <h5 class="mb-0"><i class="bi bi-list-check me-2"></i>Upload workflow & tips</h5>
+        </div>
+        <div class="card-body">
+            <ol class="list-group list-group-numbered mb-0">
+                <li class="list-group-item border-0 bg-transparent ps-0">
+                    Selecteer of maak eerst de bijbehorende activiteit aan
+                </li>
+                <li class="list-group-item border-0 bg-transparent ps-0">
+                    Upload één of meerdere bestanden (foto’s, PDF’s van programmaboekjes, posters…)
+                </li>
+                <li class="list-group-item border-0 bg-transparent ps-0">
+                    Na uploaden ga je naar de activiteit-pagina om:
+                    <ul class="mb-0 mt-2">
+                        <li>Media-type in te stellen (foto / poster / programma / flyer…)</li>
+                        <li>Rollen in te voeren vanuit programmaboekje</li>
+                        <li>Leden toe te wijzen aan foto’s</li>
+                        <li>Bestanden te finaliseren en te organiseren</li>
+                    </ul>
+                </li>
+            </ol>
         </div>
     </div>
 </div>
 
-<!-- Modal for creating new activity -->
-<div class="modal fade" id="newActivityModal" tabindex="-1">
-    <div class="modal-dialog">
+<!-- Modal for new activity suggestion -->
+<div class="modal fade" id="newActivityModal" tabindex="-1" aria-labelledby="newActivityModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Nieuwe activiteit aanmaken</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title" id="newActivityModalLabel">Nieuwe activiteit aanmaken</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <p class="text-muted">
-                    Voor een snellere workflow, maak eerst de activiteit aan via de knop hieronder.
-                    Daarna kun je direct media uploaden.
+            <div class="modal-body text-center py-4">
+                <i class="bi bi-easel3 display-4 text-primary mb-3 d-block"></i>
+                <p class="lead mb-4">
+                    Voor een soepele workflow is het handig om eerst de activiteit aan te maken.
                 </p>
-                <a href="{{ url_for('activity_new') }}" class="btn btn-primary">
-                    Ga naar activiteit formulier
+                <a href="{{ url_for('activity.new') }}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-plus-circle me-2"></i>Activiteit aanmaken
                 </a>
+            </div>
+            <div class="modal-footer justify-content-center border-0">
+                <button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">
+                    Toch direct uploaden zonder activiteit
+                </button>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .dropzone {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .dropzone:hover,
+    .dropzone.dragover {
+        background-color: #e9f5ff;
+        border-color: #0d6efd;
+    }
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    }
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);
+    }
+</style>
+
+<script>
+// Simple drag & drop + file preview
+const dropzone = document.getElementById('dropzone-area');
+const fileInput = document.getElementById('file-input');
+const preview = document.getElementById('file-preview');
+const selectBtn = document.getElementById('select-files-btn');
+
+selectBtn.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', handleFiles);
+
+['dragover', 'dragenter'].forEach(event => {
+    dropzone.addEventListener(event, e => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+    });
+});
+
+['dragleave', 'drop'].forEach(event => {
+    dropzone.addEventListener(event, e => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        if (event === 'drop') {
+            fileInput.files = e.dataTransfer.files;
+            handleFiles();
+        }
+    });
+});
+
+function handleFiles() {
+    preview.innerHTML = '';
+    preview.style.display = fileInput.files.length ? 'flex' : 'none';
+
+    Array.from(fileInput.files).forEach(file => {
+        const item = document.createElement('div');
+        item.className = 'col-6 col-sm-4 col-md-3';
+        item.innerHTML = `
+            <div class="card border shadow-sm">
+                <div class="card-body text-center p-3 small">
+                    <i class="bi bi-file-earmark${file.type.startsWith('image') ? '-image' : ''} fs-3 mb-2 d-block text-primary"></i>
+                    <div class="text-truncate">${file.name}</div>
+                    <small class="text-muted">${(file.size / 1024 / 1024).toFixed(1)} MB</small>
+                </div>
+            </div>
+        `;
+        preview.appendChild(item);
+    });
+}
+</script>
 {% endblock %}

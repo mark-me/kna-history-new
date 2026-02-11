@@ -55,7 +55,7 @@ def upload():
 
         db.session.commit()
         flash(f"{len(form.files.data)} bestanden geüpload en toegewezen.", "success")
-        return redirect(url_for("activity_detail", id_activity=activity_id))
+        return redirect(url_for("activity.detail", id_activity=activity_id))
 
     return render_template("upload.html", form=form)
 

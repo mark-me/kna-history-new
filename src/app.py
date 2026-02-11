@@ -1,12 +1,16 @@
-from flask import Flask, render_template
-from config import Config
-from content_db import db, ActivityService
+import locale
+from datetime import date, datetime
+
+from flask import Flask
+
+from blueprints.activity import activity_bp
 
 # Import blueprints
 from blueprints.core import core_bp
-from blueprints.activity import activity_bp
-from blueprints.member import member_bp
 from blueprints.media import media_bp
+from blueprints.member import member_bp
+from config import Config
+from content_db import db
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -20,13 +24,21 @@ app.register_blueprint(activity_bp)
 app.register_blueprint(member_bp)
 app.register_blueprint(media_bp)
 
+locale.setlocale(locale.LC_TIME, 'nl_NL.UTF-8')
 
-# ─── Routes ──────────────────────────────────────────────────────
-@app.route("/")
-def index():
-    activities = ActivityService.list_activities(db.session, limit=20)
-    return render_template("index.html", activities=activities)
+def _format_date(value, fmt: str = "%d-%m-%Y") -> str:
+    """Safe date formatting filter"""
+    if value is None:
+        return ""
+    if isinstance(value, (date, datetime)):
+        return value.strftime(fmt)
+    return str(value)  # fallback for unexpected types
 
+# Register filters
+app.jinja_env.filters["date"]       = lambda v: _format_date(v, "%d-%m-%Y")
+app.jinja_env.filters["date_long"]  = lambda v: _format_date(v, "%d %B %Y")
+app.jinja_env.filters["date_short"] = lambda v: _format_date(v, "%d %b %Y")
+app.jinja_env.filters["date_time"]  = lambda v: _format_date(v, "%d-%m-%Y %H:%M")
 
 # ─── Application Startup ─────────────────────────────────────────
 if __name__ == "__main__":
