@@ -21,7 +21,6 @@ app.register_blueprint(member_bp)
 app.register_blueprint(media_bp)
 
 
-
 # ─── Routes ──────────────────────────────────────────────────────
 @app.route("/")
 def index():
@@ -40,4 +39,4 @@ if __name__ == "__main__":
     print(f"✓ Resources directory: {app.config['RESOURCES_FOLDER']}")
     print(f"✓ Uploads directory: {app.config['UPLOAD_FOLDER']}")
 
-    app.run(debug=app.config['DEBUG'])
+    app.run(debug=app.config["DEBUG"])
