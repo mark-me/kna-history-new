@@ -31,10 +31,18 @@
                 <!-- Image / Placeholder -->
                 <div class="card-img-top position-relative ratio ratio-1x1 bg-dark-subtle">
                     {% if item.type_media in ['foto', 'poster'] %}
-                    <img src="{{ url_for('media.serve_thumbnail', rel_path=item.storage_path) }}"
-                         class="object-fit-cover w-100 h-100 img-zoom"
-                         alt="{{ item.caption or item.filename }}"
-                         loading="lazy">
+                        {% if item.storage_path %}
+                            <img src="{{ url_for('media.serve_thumbnail', rel_path=item.storage_path) }}"
+                                class="object-fit-cover w-100 h-100"
+                                alt="{{ item.caption or item.filename }}"
+                                loading="lazy">
+                        {% else %}
+                            <!-- fallback placeholder -->
+                            <div class="d-flex align-items-center justify-content-center h-100 bg-secondary-subtle text-muted">
+                                <i class="bi bi-image fs-1"></i>
+                                <small class="ms-2">Geen pad</small>
+                            </div>
+                        {% endif %}
                     {% else %}
                     <div class="d-flex align-items-center justify-content-center h-100 text-white-50">
                         <i class="bi bi-file-earmark-{{ 'image' if item.type_media in ['pdf','programma'] else 'pdf' }} fs-1"></i>
@@ -100,7 +108,7 @@
                 <strong><span id="selected-count">0</span> geselecteerd</strong>
             </div>
             <div class="col text-end">
-                <form method="POST" action="{{ url_for('bulk_assign_appearances', id_activity=activity_id) }}"
+                <form method="POST" action="{{ url_for('activity.bulk_assign', id_activity=activity_id) }}"
                       id="bulk-assign-form" class="d-inline-flex gap-2 flex-wrap justify-content-end">
                     <!-- Hidden inputs for selected media will be added via JS -->
 

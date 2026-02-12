@@ -73,7 +73,7 @@
                             <h5 class="mb-0"><i class="bi bi-people-fill me-2"></i>Cast & Crew</h5>
                         </div>
                         <div class="card-body p-0">
-                            {{ roles_list(activity) }}
+                            {% include 'partials/roles_list.html' %}
                         </div>
                     </div>
                 </div>
@@ -85,7 +85,7 @@
                         </div>
                         <div class="card-body">
                             <!-- Quick parse form -->
-                            <form method="POST" action="{{ url_for('parse_roles', id_activity=activity.id_activity) }}">
+                            <form method="POST" action="{{ url_for('activity.parse_roles', id_activity=activity.id_activity) }}">
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Programmatekst plakken</label>
                                     <textarea name="program_text" class="form-control" rows="8"
@@ -229,7 +229,7 @@
                                     <div id="step5" class="accordion-collapse collapse">
                                         <div class="accordion-body">
                                             <p>Verplaats uploads naar de definitieve map en genereer thumbnails.</p>
-                                            <form method="POST" action="{{ url_for('finalize_media_assignment', id_activity=activity.id_activity) }}">
+                                            <form method="POST" action="{{ url_for('activity.finalize_media', id_activity=activity.id_activity) }}">
                                                 <button type="submit" class="btn btn-success">
                                                     <i class="bi bi-check-circle me-2"></i>Alles finaliseren
                                                 </button>
