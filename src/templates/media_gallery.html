@@ -188,18 +188,19 @@ const selectAllBtn = document.getElementById('select-all-btn');
 const deselectAllBtn = document.getElementById('deselect-all-btn');
 const form = document.getElementById('bulk-assign-form');
 
+document.querySelectorAll('.media-checkbox').forEach(cb => {
+    cb.addEventListener('change', updateSelection);
+});
+
 function updateSelection() {
-    const checked = Array.from(checkboxes).filter(cb => cb.checked);
+    const checked = document.querySelectorAll('.media-checkbox:checked');
     const count = checked.length;
+    document.getElementById('selected-count').textContent = count;
+    document.getElementById('bulk-actions').style.display = count > 0 ? 'block' : 'none';
 
-    selectedCountEl.textContent = count;
-    bulkActions.style.display = count > 0 ? 'block' : 'none';
-    deselectAllBtn.disabled = count === 0;
-
-    // Clear previous hidden inputs
+    const form = document.getElementById('bulk-assign-form');
     form.querySelectorAll('input[name="media_ids"]').forEach(el => el.remove());
 
-    // Add current selection
     checked.forEach(cb => {
         const input = document.createElement('input');
         input.type = 'hidden';

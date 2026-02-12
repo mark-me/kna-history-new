@@ -102,7 +102,13 @@
                         {{ form.folder.label(class="form-label") }}
                     </div>
                     <div class="form-text text-muted mt-1">
-                        Wordt automatisch aangemaakt als: <code>{{ activity.year }}-{{ activity.title|slugify if activity else 'titel' }}</code><br>
+                        Wordt automatisch aangemaakt als: <code>
+                            {% if activity %}
+                                {{ activity.year }}-{{ activity.title|slugify }}
+                            {% else %}
+                                jaar-titel
+                            {% endif %}
+                        </code><br>
                         Alleen letters, cijfers, streepjes en underscores aanbevolen
                     </div>
                     {% if form.folder.errors %}
